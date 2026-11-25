@@ -2,9 +2,10 @@
 
 Turn the newsletters piling up in your inbox into one private podcast episode a day.
 
-It reads one mailbox folder, gives Claude every newsletter in it, and asks for a script: the stories most of them cover, then the smaller ones worth knowing. Your own computer reads the script aloud. When several newsletters cover the same story, you hear it once. When one of them corrects the others, Claude is told to use the correction. It won't mention everything: 48 newsletters don't fit in 15 minutes.
+It reads one mailbox folder, gives Claude every newsletter in it, and asks for a script: the stories most of them cover, then the smaller ones worth knowing. Your own computer reads the script aloud. When one of them corrects the others, Claude is told to use the correction. It won't mention everything: 48 newsletters don't fit in 15 minutes.
 
 - **Your newsletters, your show.** You choose the folder, the length, the topics that always get a section, and the voice. The Mac's own voice works right away, Kokoro is one install, and you can plug in any other text-to-speech tool. The show's instructions are in `prompt.md`, in plain English, for you to edit.
+- **Ads and repeats are left out.** Claude is told to skip ads, sponsor messages, event promotions and requests to subscribe. When several newsletters cover the same story, Claude combines them into one account, so you hear it once. If a sender only ever sends promotions, add its name to `skip` under `[mail]` in `config.toml`, and its emails are never sent to Claude.
 - **No newsletter is cut short.** Claude gets the full text of each one, minus links and footer lines. If there's too much, the program stops and tells you. Anything it doesn't send (your skip list, second copies, empty emails, emails over 10 MB) is listed when you run it.
 - **Private, with one exception.** Episodes stay on your computer, and nothing is published. But Claude writes the script, so your newsletters' text goes to Anthropic. Your passwords don't. (If you add an online voice, the script goes to that company too.)
 - **Claude can't do anything but write.** It gets text, with no tools, files, web access or passwords.
@@ -35,7 +36,7 @@ This installs two programs: `uv`, which runs Python, and `ffmpeg`, which makes t
 brew install uv ffmpeg
 ```
 
-Download the project and go into its folder. (If macOS offers to install its command line developer tools, accept, wait for it to finish, then run the `git clone` command again.)
+Download the project and go into its folder. Run this in a new Terminal window, which starts in your home folder, so the project lands in `~/newsletter-podcast`. Avoid Documents, Desktop and Downloads, because a scheduled run may not be allowed to read them. (If macOS offers to install its command line developer tools, accept, wait for it to finish, then run the `git clone` command again.)
 
 ```bash
 git clone https://github.com/bronsonelliott/newsletter-podcast.git
@@ -51,6 +52,8 @@ Run every command from here on in this folder. Give the project its own Python, 
 uv venv --python 3.12
 ```
 
+It prints three lines, ending with `Activate with: ...`. You can ignore that last line: `uv run` finds the project's Python by itself.
+
 ### 2. Choose how to reach Claude
 
 Make your own copies of the two settings files. Git ignores both, so they never get uploaded:
@@ -63,7 +66,7 @@ cp config.example.toml config.toml
 cp .env.example .env && chmod 600 .env
 ```
 
-`chmod 600` means only your account can read `.env`, which holds your passwords. The program refuses to start if other accounts can read it.
+Neither command prints anything when it works. `chmod 600` means only your account can read `.env`, which holds your passwords. The program refuses to start if other accounts can read it.
 
 Then pick one way to reach Claude.
 
@@ -73,7 +76,7 @@ Then pick one way to reach Claude.
 claude --version
 ```
 
-You also have to be signed in to it. If you don't have it, [install it](https://code.claude.com/docs/en/setup) or use option B. It counts against your plan's limits. I tested with version 2.1.332. If a run stops with `unknown option`, run `claude update`.
+If you don't have it, [install it](https://code.claude.com/docs/en/setup) or use option B. You also have to be signed in to it. To check, run `claude`. If it asks you to log in, type `/login` and sign in. Then type `/exit` to come back. It counts against your plan's limits. I tested with version 2.1.332. If a run stops with `unknown option`, run `claude update`.
 
 This opens the settings file in TextEdit. Change `backend = "api"` to `backend = "claude-code"`, keeping the quotes, then save and close:
 
@@ -110,6 +113,8 @@ Writing the script with claude-opus-5-5 ...
 Recording with the mac voice ...
 Episode: .../output/demo/episode-2026-11-24.mp3 (11 min 44 s)
 ```
+
+If it stops instead, the last line starts with `STOPPED:` and says why. With Claude Code, `Not logged in` and `unknown option` are the likely ones; option A above says what to do for each.
 
 To see the files, run this. It opens the folder in Finder. Double-click the `.mp3` to play the episode. The `.txt` is its script:
 
@@ -245,7 +250,7 @@ For Gmail:
 5. Repeat for each sender, or put several in one filter with `OR` between them.
 6. Open the gear icon, then **See all settings > Labels**, and check that **Show in IMAP** is ticked for that label. (IMAP is the standard way programs read mail.)
 
-If your filter already deletes newsletters on arrival, you can keep it that way and set `include_trash = true` in step 3 below. Gmail keeps the label on them, but a program reading the label won't see them without that setting.
+If your filter already deletes newsletters on arrival, you can keep it that way and set `include_trash = true` under `[mail]` in step 3 below. Gmail keeps the label on them, but a program reading the label won't see them without that setting.
 
 **Not on Gmail?** Look for a rule or filter that moves newsletters into a folder of their own, and use that folder's name for `folder` in step 3. The program reads folders. A Gmail label counts as one, but in some other mail services a tag or category doesn't, and the program can't see it. You also need to set `host` to your mail service's IMAP server. Services that support IMAP with a password should work, but I've only tested Gmail. Outlook.com won't, because Microsoft [ended that kind of sign-in](https://support.microsoft.com/en-us/topic/c5d65390-9676-4763-b41f-d7986499a90d) in September 2024.
 
@@ -267,7 +272,13 @@ open -e .env
 open -e config.toml
 ```
 
-Under `[mail]`, set `user` to your email address and `folder` to your label, spelled exactly as it is in Gmail. Keep the quotes. The other settings have notes beside them. Most people will want `minutes`, `listener` and `skip`. For example, `skip = ["webinar", "job alert"]` leaves out any email with those words in its sender or subject. If you get few newsletters, lower `minimum_issues`: with fewer than that in the window, the program stops.
+Under `[mail]`, set `user` to your email address and `folder` to your label, spelled exactly as it is in Gmail. Keep the quotes. The other settings have notes beside them. Most people will want these three:
+
+- `minutes` (under `[show]`) is the episode's target length.
+- `listener` (under `[show]`) is one sentence about you, such as "I run a small bakery and care about AI tools for small businesses." The show uses it to decide what matters to you.
+- `skip` (under `[mail]`) leaves out emails by word. For example, `skip = ["webinar", "job alert"]` leaves out any email with those words in its sender or subject.
+
+If you get few newsletters, lower `minimum_issues`. When fewer than that many arrived in the last 24 hours (or `hours`, if you changed it), the program stops instead of making a thin episode.
 
 ### 4. Check the setup
 
@@ -283,7 +294,7 @@ This checks your install, your voice, your settings and the mailbox sign-in, say
 uv run podcast.py run
 ```
 
-It covers the last 24 hours. To see the episode:
+It covers the last 24 hours and takes a few minutes. It prints the same kind of lines as the demo, plus a `left out:` line for each email it didn't send to Claude, and why. The last line starts with `Episode:` when it works. To see the episode:
 
 ```bash
 open output
@@ -345,6 +356,8 @@ Then look at what it did:
 cat ~/Library/Logs/newsletter-podcast.log
 ```
 
+A good run ends with an `Episode:` line, or with `Today's episode already exists` if it had nothing to do. If the file isn't there, the schedule hasn't run yet.
+
 The Mac has to be on, and you have to be logged in. If it's asleep at 5:00, the episode gets made when it wakes up. If a run fails, you should get a Mac notification, and the details are in that log. If the log shows permission errors, move the project out of Documents or Desktop.
 
 If the log says `Not logged in`, run `claude` in Terminal, type `/login`, and sign in again. This happened to my personal version once, at a 5 AM run.
@@ -361,7 +374,7 @@ To change the time, or if you move the project folder, stop the schedule and mak
 
 ## What it costs
 
-Recording is free with the Mac voice or Kokoro, because it happens on your computer. A voice you add may cost something. Writing the script costs whatever Claude charges for the text it reads and writes. At Claude Opus 5.5's list price in November 2026 ($4 per million tokens read, $20 per million written), the demo works out to about $0.22. A real day with 48 newsletters (146,419 tokens read, 11,565 written) works out to about $0.82. Sonnet 5.5 is about half that: set `model = "claude-sonnet-5-5"`. These are calculations from token counts, so check your own bill.
+Recording is free with the Mac voice or Kokoro, because it happens on your computer. A voice you add may cost something. Writing the script costs whatever Claude charges for the text it reads and writes. At Claude Opus 5.5's list price in November 2026 ($4 per million tokens read, $20 per million written), the demo works out to about $0.22. A real day with 48 newsletters (146,419 tokens read, 11,565 written) works out to about $0.82. Sonnet 5.5 is about half that: set `model = "claude-sonnet-5-5"` under `[writer]` in `config.toml`. These are calculations from token counts, so check your own bill.
 
 ## How it stays safe
 
@@ -373,7 +386,7 @@ Newsletters are text from strangers, and some emails contain hidden instructions
 - A newsletter can't close its own wrapper and pose as instructions.
 - A newsletter can't pull in a file from your computer. Claude Code reads a file when it sees `@` and a path, so that feature is turned off and every `@` is swapped for a look-alike. I tested each guard alone.
 - Everything the program writes is readable by your account only, and very large or malformed emails can't stall it or break the feed.
-- If Claude refuses, stops early or writes almost nothing, no episode is made. A safety filter stopped my personal version on two days heavy with hacking or biology stories. With an API key, the program asks Anthropic to retry on another Claude model. With Claude Code it doesn't. Setting `model = "claude-sonnet-5-5"` and running it again may get through.
+- If Claude refuses, stops early or writes almost nothing, no episode is made. A safety filter stopped my personal version on two days heavy with hacking or biology stories. With an API key, the program asks Anthropic to retry on another Claude model. With Claude Code it doesn't. Setting `model = "claude-sonnet-5-5"` under `[writer]` in `config.toml` and running it again may get through.
 - The voice is handed the script and no passwords.
 
 What's left is that a hostile newsletter could still try to change the words you hear. In one test with hidden instructions added to a newsletter, the script ignored them and warned the listener. One test isn't a guarantee, so treat an episode like the newsletters it came from: check anything that matters.
