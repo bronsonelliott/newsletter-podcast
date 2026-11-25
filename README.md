@@ -336,7 +336,7 @@ launchctl list | grep newsletter-podcast
 To test it without waiting for morning, this starts it now. If today's episode already exists, it does nothing and costs nothing. If not, it makes one and costs the same as `run`:
 
 ```bash
-launchctl kickstart gui/$(id -u)/com.example.newsletter-podcast
+launchctl kickstart gui/$(id -u)/com.github.bronsonelliott.newsletter-podcast
 ```
 
 Then look at what it did:
@@ -351,10 +351,10 @@ If the log says `Not logged in`, run `claude` in Terminal, type `/login`, and si
 
 **A late run can miss newsletters.** Each episode covers the 24 hours before it starts. If yesterday's ran at 5:00 and today's runs at 8:00, anything that arrived between 5:00 and 8:00 yesterday is in neither. Raising `hours` under `[mail]` closes the gap, but you may hear some stories twice.
 
-To stop the schedule, copy this exactly (`com.example.newsletter-podcast` is its real name):
+To stop the schedule, copy this exactly (`com.github.bronsonelliott.newsletter-podcast` is its real name):
 
 ```bash
-launchctl bootout gui/$(id -u)/com.example.newsletter-podcast && rm ~/Library/LaunchAgents/com.example.newsletter-podcast.plist
+launchctl bootout gui/$(id -u)/com.github.bronsonelliott.newsletter-podcast && rm ~/Library/LaunchAgents/com.github.bronsonelliott.newsletter-podcast.plist
 ```
 
 To change the time, or if you move the project folder, stop the schedule and make it again.

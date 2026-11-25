@@ -6,6 +6,7 @@ import email.policy
 import imaplib
 import re
 import ssl
+import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -36,7 +37,8 @@ class TextFromHTML(HTMLParser):
     """Keep the words of an HTML email. Only scripts and styles are dropped:
     hiding more than that risks losing real text in badly built emails."""
 
-    BREAKS = {"p", "div", "br", "tr", "li", "h1", "h2", "h3", "h4", "table", "blockquote", "section"}
+    BREAKS = {"p", "div", "br", "tr", "td", "th", "li", "ul", "ol", "dt", "dd", "h1", "h2", "h3", "h4", "h5", "h6",
+              "table", "blockquote", "section", "article", "header", "footer", "pre", "hr", "figcaption"}
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -185,8 +187,13 @@ def read_since(box, since, oldest, *also):
         found = [item for item in reply if isinstance(item, tuple)]
         if status != "OK" or not found:
             raise PodcastError("The mailbox stopped partway through. Try again.")
-        stamp = imaplib.Internaldate2tuple(found[0][0])
-        received = time.mktime(stamp) if stamp else time.time()
+        # Servers may send the date before or after the message itself, so look in every part of the reply.
+        heads = [found[0][0]] + [item for item in reply if isinstance(item, bytes)]
+        stamp = next((found_date for found_date in map(imaplib.Internaldate2tuple, heads) if found_date), None)
+        if not stamp:
+            print(f"  left out message {number.decode()}: the mail server gave no date for it", file=sys.stderr)
+            continue
+        received = time.mktime(stamp)
         if received >= oldest:
             issues.append(read_message(found[0][1], received))
     return issues

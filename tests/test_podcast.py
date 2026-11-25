@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import os
+import plistlib
 import ssl
 import stat
 import subprocess
@@ -112,6 +113,29 @@ class MailTests(unittest.TestCase):
     def test_only_messages_inside_the_window(self):
         box = FakeMailbox([(time.time() - 3600, raw_email("new")), (time.time() - 30 * 3600, raw_email("old"))])
         self.assertEqual([i.text for i in mail.fetch_issues(config()["mail"], "pw", 24, connect=box)], ["new"])
+
+    def test_date_sent_after_the_message_is_found(self):
+        box = FakeMailbox([(time.time() - 3600, raw_email("new")), (time.time() - 30 * 3600, raw_email("old")),
+                           (None, raw_email("no date"))])
+
+        def fetch(number, parts):      # this server sends the message first and its date last
+            when, raw = box.messages[int(number) - 1]
+            if when is None:
+                return "OK", [(f"{number.decode()} (BODY[] {{{len(raw)}}}".encode(), raw), b")"]
+            stamp = time.strftime("%d-%b-%Y %H:%M:%S ", time.localtime(when)) + time.strftime("%z", time.localtime(when))
+            return "OK", [(f"{number.decode()} (BODY[] {{{len(raw)}}}".encode(), raw), f' INTERNALDATE "{stamp}")'.encode()]
+
+        box.fetch = fetch
+        with mock.patch("sys.stderr"):
+            found = mail.fetch_issues(config()["mail"], "pw", 24, connect=box)
+        self.assertEqual([i.text for i in found], ["new"])
+
+    def test_table_cells_and_small_headings_do_not_run_together(self):
+        page = "<table><tr><td>Price</td><td>$5</td></tr></table><h5>Head</h5>Body " + "More words. " * 20
+        text = mail.read_message(raw_email(None, page), 0).text
+        self.assertNotIn("Price$5", text)
+        self.assertNotIn("HeadBody", text)
+        self.assertIn("Price", text)
 
     def test_search_date_uses_english_months(self):
         self.assertEqual(mail.imap_date(datetime(2026, 11, 4)), "04-Nov-2026")
@@ -480,6 +504,20 @@ class FeedTests(unittest.TestCase):
         feed.feed_token(self.folder)
         self.assertEqual(stat.S_IMODE((self.folder / ".feed-token").stat().st_mode), 0o600)
 
+    def test_empty_token_file_is_replaced(self):
+        (self.folder / ".feed-token").write_text("")
+        token = feed.feed_token(self.folder)
+        self.assertGreater(len(token), 20)
+        self.assertEqual(feed.feed_token(self.folder), token)
+        self.assertEqual(stat.S_IMODE((self.folder / ".feed-token").stat().st_mode), 0o600)
+
+    def test_port_in_use_is_explained(self):
+        first = feed.make_server(self.config, self.folder)
+        self.addCleanup(first.server_close)
+        self.config["feed"]["port"] = first.server_address[1]
+        with self.assertRaisesRegex(PodcastError, "port"):
+            feed.make_server(self.config, self.folder)
+
     def test_server_serves_only_the_feed_and_episodes(self):
         self.add_episode()
         (self.folder / "episode-2026-11-04.txt").write_text("script")
@@ -526,6 +564,7 @@ class SettingsTests(unittest.TestCase):
     def test_mistakes_are_explained(self):
         for text, words in (("[show]\nnmae='x'", "nmae"), ("[shwo]\nname='x'", "shwo"), ("[show]\nminutes='x'", "minutes"),
                             ("[show]\nminutes=0", "1 or more"), ("[writer]\nbackend='x'", "backend"),
+                            ("[mail]\nskip=[1]", "skip"), ("[show]\nalways_cover=['ok', 2]", "always_cover"),
                             ("[audio]\nengine='../x'", "engine"), ("[audio]\nengine=''", "engine"), ("[audio]\nspeed=0.0", "speed"), ("[show", "typo")):
             with self.assertRaisesRegex(PodcastError, words):
                 self.load(text)
@@ -533,12 +572,24 @@ class SettingsTests(unittest.TestCase):
     def test_secrets_file_must_be_private(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / ".env"
-            path.write_text("A='b=c'\n# note\n")
+            path.write_text("A='b=c'\n# note\nB=ends-in-a-quote'\nC=\"wrapped\"\nD='\n")
             path.chmod(0o644)
             with self.assertRaisesRegex(PodcastError, "chmod 600"):
                 settings.load_secrets(path)
             path.chmod(0o600)
-            self.assertEqual(settings.load_secrets(path), {"A": "b=c"})
+            self.assertEqual(settings.load_secrets(path), {"A": "b=c", "B": "ends-in-a-quote'", "C": "wrapped", "D": "'"})
+
+    def test_schedule_has_the_project_name(self):
+        spec = importlib.util.spec_from_file_location("podcast_main", ROOT / "podcast.py")
+        podcast = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(podcast)
+        with tempfile.TemporaryDirectory() as home, mock.patch.object(Path, "home", return_value=Path(home)), \
+                mock.patch("sys.stdout"):
+            podcast.schedule("05:00")
+            path = Path(home) / "Library/LaunchAgents/com.github.bronsonelliott.newsletter-podcast.plist"
+            details = plistlib.loads(path.read_bytes())
+        self.assertEqual(details["Label"], "com.github.bronsonelliott.newsletter-podcast")
+        self.assertEqual(details["StartCalendarInterval"], {"Hour": 5, "Minute": 0})
 
 
 if __name__ == "__main__":

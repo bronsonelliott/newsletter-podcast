@@ -23,7 +23,7 @@ from newsletter_podcast import PodcastError
 from newsletter_podcast import feed, mail, settings, speak, writer
 
 ROOT = Path(__file__).resolve().parent
-JOB = "com.example.newsletter-podcast"
+JOB = "com.github.bronsonelliott.newsletter-podcast"
 
 
 def notify(message):

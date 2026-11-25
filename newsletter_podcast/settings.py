@@ -39,6 +39,8 @@ def load_config(path):
             right_type = (int, float) if isinstance(default, float) else type(default)
             if not isinstance(value, right_type) or (isinstance(value, bool) and not isinstance(default, bool)):
                 raise PodcastError(f"{path.name}: {name} in [{section}] should look like {default!r}")
+            if isinstance(value, list) and not all(isinstance(item, str) for item in value):
+                raise PodcastError(f'{path.name}: every item in {name} in [{section}] should be text in quotes, like ["Example"]')
             config[section][name] = value
     if config["writer"]["backend"] not in ("api", "claude-code"):
         raise PodcastError('config.toml: backend must be "api" or "claude-code"')
@@ -62,7 +64,10 @@ def load_secrets(path):
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
             name, value = line.split("=", 1)
-            secrets[name.strip()] = value.strip().strip("\"'")
+            value = value.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":      # quotes around the whole value
+                value = value[1:-1]
+            secrets[name.strip()] = value
     return secrets
 
 

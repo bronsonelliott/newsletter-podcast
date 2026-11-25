@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from email.utils import formatdate
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+from . import PodcastError
 from .mail import UNSAFE
 
 EPISODE = re.compile(r"^episode-(\d{4}-\d{2}-\d{2})\.(mp3|txt|json)$")
@@ -28,10 +29,11 @@ def write_safely(path, text):
 def feed_token(folder):
     """A random word in the feed address, so other devices can't guess it."""
     path = folder / ".feed-token"
-    if not path.exists():
-        path.touch(mode=0o600)
-        path.write_text(secrets.token_urlsafe(18))
-    return path.read_text().strip()
+    token = path.read_text().strip() if path.exists() else ""
+    if not token:      # missing, or left empty by a crash
+        token = secrets.token_urlsafe(18)
+        write_safely(path, token)
+    return token
 
 
 def feed_address(config, folder):
@@ -93,6 +95,8 @@ def make_server(config, folder):
     token = feed_token(folder)
 
     class Handler(BaseHTTPRequestHandler):
+        timeout = 30        # seconds; a connection that stalls is dropped instead of waiting forever
+
         def do_HEAD(self):
             self.reply(send_body=False)
 
@@ -143,4 +147,9 @@ def make_server(config, folder):
         def log_message(self, pattern, *values):
             pass        # the address holds the secret word, so don't log it
 
-    return ThreadingHTTPServer((config["feed"]["host"], config["feed"]["port"]), Handler)
+    host, port = config["feed"]["host"], config["feed"]["port"]
+    try:
+        return ThreadingHTTPServer((host, port), Handler)
+    except OSError as problem:
+        raise PodcastError(f"Could not start the feed on {host} port {port} ({problem.strerror or problem}). "
+                           "If it's already running, use that one, or pick another port in config.toml.")
