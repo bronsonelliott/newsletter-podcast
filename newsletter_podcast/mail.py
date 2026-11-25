@@ -16,6 +16,10 @@ from . import PodcastError
 
 MONTHS = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
 FOOTER = re.compile(r"unsubscribe|view (this email )?in (your )?browser|manage (your )?preferences|update your profile", re.I)
+LARGEST_EMAIL = 10_000_000     # bytes; a newsletter is usually well under 1 million
+LABEL = re.compile(r"(View image:|Follow image link:|Caption:)")
+# Characters that break a podcast feed or can't be printed.
+UNSAFE = re.compile("[^\t\n\r\u0020-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]")
 INVISIBLE = re.compile("[­͏​-‏ -‮⁠-⁤﻿]")
 
 
@@ -61,8 +65,11 @@ def tidy(text):
     text = INVISIBLE.sub("", text).replace("\xa0", " ")
     text = re.sub(r"\(\s*<?https?://[^\s)]*>?\s*\)?", "", text)      # a link in brackets, with its brackets
     text = re.sub(r"https?://\S+", "", text)
-    text = re.sub(r"^\s*(View image:|Follow image link:|Caption:)", "", text, flags=re.M)
-    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.splitlines()]
+    lines = []
+    for line in text.splitlines():
+        line = re.sub(r"[ \t]+", " ", line).strip()
+        label = LABEL.match(line)
+        lines.append(line[label.end():].strip() if label else line)
     lines = [line for line in lines if not (len(line) < 120 and FOOTER.search(line))]
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
 
@@ -93,11 +100,18 @@ def body_text(message):
     return plain if len(plain) >= 0.8 * len(page) else page
 
 
+def one_line(value):
+    return " ".join(UNSAFE.sub("", str(value)).split())
+
+
 def read_message(raw, received):
-    message = email.message_from_bytes(raw, policy=email.policy.default)
-    return Issue(sender=str(message.get("From", "")), subject=str(message.get("Subject", "")),
-                 received=received, text=body_text(message),
-                 message_id=str(message.get("Message-ID", "")).strip())
+    too_big = len(raw) > LARGEST_EMAIL
+    message = email.message_from_bytes(raw[:100_000] if too_big else raw, policy=email.policy.default)
+    subject = one_line(message.get("Subject", ""))
+    return Issue(sender=one_line(message.get("From", "")),
+                 subject=f"{subject} [over {LARGEST_EMAIL // 1_000_000} MB, not read]" if too_big else subject,
+                 received=received, text="" if too_big else UNSAFE.sub("", body_text(message)),
+                 message_id=one_line(message.get("Message-ID", "")))
 
 
 def imap_date(moment):

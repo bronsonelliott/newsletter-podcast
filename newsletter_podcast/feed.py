@@ -1,6 +1,7 @@
 """Keep the episode list, build the podcast feed and serve it on your own network."""
 
 import json
+import os
 import re
 import secrets
 import xml.etree.ElementTree as ET
@@ -9,14 +10,19 @@ from email.utils import formatdate
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from .mail import UNSAFE
+
 EPISODE = re.compile(r"^episode-(\d{4}-\d{2}-\d{2})\.(mp3|txt|json)$")
 ITUNES = "http://www.itunes.com/dtds/podcast-1.0.dtd"
 
 
 def write_safely(path, text):
-    """Write to a temporary file and swap it in, so a crash can't leave half a file."""
+    """Write to a temporary file and swap it in, so a crash can't leave half a file.
+    Only this account can read it: the feed holds the secret address."""
     temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(text)
+    temporary.unlink(missing_ok=True)
+    with os.fdopen(os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "w", encoding="utf-8") as file:
+        file.write(text)
     temporary.replace(path)
 
 
@@ -58,7 +64,7 @@ def build_feed(folder, config):
     channel = ET.SubElement(rss, "channel")
 
     def add(parent, tag, text="", **attributes):
-        ET.SubElement(parent, tag, attributes).text = text or None
+        ET.SubElement(parent, tag, attributes).text = UNSAFE.sub("", text) or None
 
     add(channel, "title", config["show"]["name"])
     add(channel, "link", address)

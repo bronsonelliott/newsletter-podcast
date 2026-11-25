@@ -4,6 +4,7 @@ The voice runs as a separate program. It is handed the script and nothing else:
 no passwords and no settings."""
 
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -24,6 +25,17 @@ def kokoro_python(audio):
     return ROOT / Path(audio["kokoro_python"]).expanduser()
 
 
+def kokoro_works(python):
+    # -I and an empty folder: never import a stray file that happens to have the right name.
+    test = [str(python), "-I", "-c", "import kokoro, soundfile, numpy, en_core_web_sm"]
+    with tempfile.TemporaryDirectory() as folder:
+        return subprocess.run(test, capture_output=True, cwd=folder, env=plain_environment()).returncode == 0
+
+
+def plain_environment():
+    return {name: os.environ[name] for name in ("PATH", "HOME", "LANG", "HF_HOME") if name in os.environ}
+
+
 def missing_parts(audio):
     """What the chosen voice needs that isn't installed."""
     engine, missing = audio["engine"], []
@@ -34,8 +46,7 @@ def missing_parts(audio):
         missing.append("the Mac voice (this isn't a Mac)")
     if engine == "kokoro":
         python = kokoro_python(audio)
-        test = [str(python), "-c", "import kokoro, soundfile, numpy, en_core_web_sm"]
-        if not python.exists() or subprocess.run(test, capture_output=True, cwd=tempfile.gettempdir()).returncode:
+        if not python.exists() or not kokoro_works(python):
             missing.append(f"Kokoro (looked in {audio['kokoro_python']})")
         else:
             for data in python.parent.parent.glob("lib/python*/site-packages/espeakng_loader/espeak-ng-data"):
@@ -47,16 +58,16 @@ def missing_parts(audio):
 
 def voice_command(audio, text_path, sound_path):
     if audio["engine"] == "kokoro":
-        return [str(kokoro_python(audio)), str(ROOT / "voices/kokoro/speak.py"), str(text_path), str(sound_path),
+        return [str(kokoro_python(audio)), "-I", str(ROOT / "voices/kokoro/speak.py"), str(text_path), str(sound_path),
                 audio["voice"] or DEFAULT_KOKORO_VOICE, str(audio["speed"])]
     command = ["say", "-f", str(text_path), "-o", str(sound_path), "-r", str(round(MAC_WORDS_PER_MINUTE * audio["speed"]))]
     return command + (["-v", audio["voice"]] if audio["voice"] else [])
 
 
 def run_tool(command, label, folder):
-    environment = {name: os.environ[name] for name in ("PATH", "HOME", "LANG", "HF_HOME") if name in os.environ}
     try:
-        return subprocess.run(command, check=True, capture_output=True, text=True, cwd=folder, env=environment, timeout=3600)
+        return subprocess.run(command, check=True, capture_output=True, text=True, cwd=folder,
+                              env=plain_environment(), timeout=3600)
     except FileNotFoundError:
         raise PodcastError(f"{label} isn't installed. See the README.")
     except subprocess.TimeoutExpired:
@@ -72,7 +83,7 @@ def make_mp3(script, mp3_path, audio):
     with tempfile.TemporaryDirectory() as folder:
         text_path = Path(folder) / "script.txt"
         # The Mac voice treats [[...]] as commands, so never pass any through.
-        text_path.write_text(script.replace("[[", "[").replace("]]", "]"), encoding="utf-8")
+        text_path.write_text(re.sub(r"\[+", "[", re.sub(r"\]+", "]", script)), encoding="utf-8")
         sound_path = Path(folder) / ("sound.wav" if audio["engine"] == "kokoro" else "sound.aiff")
         run_tool(voice_command(audio, text_path, sound_path), "The voice", folder)
         try:

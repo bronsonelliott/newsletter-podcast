@@ -212,6 +212,8 @@ Newsletters are text from strangers, and some emails contain hidden instructions
 - Your own computer fetches the mail. Claude never touches the mailbox.
 - Claude gets no tools. With Claude Code, every tool is switched off and it runs from an empty folder without your passwords.
 - A newsletter can't close its own wrapper and pose as instructions.
+- A newsletter can't pull in a file from your computer. Claude Code reads a file when it sees `@` and a path, so that feature is turned off and every `@` is swapped for a look-alike. I tested each guard alone.
+- Everything the program writes is readable by your account only, and very large or malformed emails can't stall it or break the feed.
 - If Claude refuses, stops early or writes almost nothing, no episode is made.
 - The voice is handed the script and no passwords.
 

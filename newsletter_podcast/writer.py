@@ -21,6 +21,13 @@ def target_words(config):
     return round(config["show"]["minutes"] * WORDS_PER_MINUTE / 50) * 50 or 50
 
 
+def defuse(text):
+    """Stop a newsletter from closing its own tag and posing as instructions, and
+    from using @ to pull in a file: Claude Code reads the file after an @ sign.
+    The look-alike character means the same thing to a reader."""
+    return re.sub(r"<(?=\s*/?\s*newsletter)", "(", text, flags=re.I).replace("@", "\uff20")
+
+
 def build_prompt(template, config, issues, now=None):
     """Return (instructions, newsletters). Nothing is ever cut to fit."""
     show, limit = config["show"], config["writer"]["max_characters"]
@@ -43,9 +50,7 @@ def build_prompt(template, config, issues, now=None):
     instructions = re.sub(r"\{(\w+)\}", lambda m: values.get(m.group(1), m.group(0)), template)
     blocks = []
     for number, issue in enumerate(issues, 1):
-        # Stop a newsletter from closing its own tag and posing as instructions.
-        safe = [re.sub(r"<(?=\s*/?\s*newsletter)", "(", field, flags=re.I)
-                for field in (issue.sender, issue.subject, issue.text)]
+        safe = [defuse(field) for field in (issue.sender, issue.subject, issue.text)]
         blocks.append(f'<newsletter number="{number}">\nFrom: {safe[0]}\nSubject: {safe[1]}\n\n{safe[2]}\n</newsletter>')
     return instructions, "\n\n".join(blocks)
 
@@ -99,6 +104,7 @@ def ask_claude_code(instructions, newsletters, writer, run=subprocess.run):
     private = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "IMAP_PASSWORD")
     environment = {name: value for name, value in os.environ.items() if name not in private}
     environment["CLAUDE_CODE_MAX_OUTPUT_TOKENS"] = str(MAX_OUTPUT_TOKENS)
+    environment["CLAUDE_CODE_DISABLE_ATTACHMENTS"] = "1"      # a second guard against @file
     try:
         with tempfile.TemporaryDirectory() as empty:
             result = run(claude_command(instructions, writer), input=newsletters, capture_output=True,
@@ -129,8 +135,8 @@ def ask_claude_code(instructions, newsletters, writer, run=subprocess.run):
 def clean_script(text):
     """Remove anything that shouldn't be read aloud."""
     text = re.sub(r"https?://\S+", "", text)
-    text = re.sub(r"^\s*(#{1,6}|[-*•])\s+", "", text, flags=re.M)
-    text = re.sub(r"[*_`]{1,3}(\S(?:.*?\S)?)[*_`]{1,3}", r"\1", text)
+    text = re.sub(r"^[ \t]*(#{1,6}|[-*•])[ \t]+", "", text, flags=re.M)
+    text = re.sub(r"[*`]+|\b_+|_+\b", "", text).replace("\uff20", "@")
     return re.sub(r"\n{3,}", "\n\n", text).strip() + "\n"
 
 

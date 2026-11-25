@@ -11,6 +11,7 @@
 import argparse
 import fcntl
 import importlib.util
+import os
 import plistlib
 import shutil
 import subprocess
@@ -168,6 +169,7 @@ def main():
     commands.add_parser("serve").add_argument("--demo", action="store_true", help="serve the demo episode")
     commands.add_parser("schedule").add_argument("time", help="24-hour time, such as 05:00")
     args = parser.parse_args()
+    os.umask(0o077)      # everything this program writes is readable by this account only
     unattended = args.command == "run" and not sys.stdin.isatty()
     try:
         if args.command == "schedule":
