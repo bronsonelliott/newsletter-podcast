@@ -312,7 +312,7 @@ As it comes, only the same computer can reach it. To reach it from a phone on yo
 scutil --get LocalHostName
 ```
 
-Click **Allow** if macOS asks about incoming connections. Start `serve` again, then add the printed feed address to an app that accepts a feed URL. Away from home your phone can't reach it, so download the episode before you leave.
+Click **Allow** if macOS asks about incoming connections. Start `serve` again, then add the printed feed address to your podcast app. In Apple Podcasts on an iPhone, that's **Library**, the **•••** button, then **Follow a Show by URL**. If the phone asks to find devices on your local network, allow it. (Opening the address in Safari only says it can't open an RSS feed. That still means your phone can reach it.) Some podcast apps may fetch feeds from their own servers, and those can't reach a feed on your home network. Away from home your phone can't reach it either, so download the episode before you leave.
 
 The address contains a long random word, and anyone who has it can listen. The connection isn't encrypted, so keep it on a network you trust and don't open it to the internet.
 
@@ -386,7 +386,7 @@ What's left is that a hostile newsletter could still try to change the words you
 | Installing Kokoro from scratch | Yes, in a new folder on one Mac that already had the 330 MB voice file |
 | Mail reading | Yes, on one real Gmail account: 48 newsletters in one run. About 45 specific claims in that episode were looked up, and all were in the newsletters |
 | Anthropic API | Only with a stand-in. Not yet with a real key |
-| Feed | Address, skipping ahead and file format, with command-line tools. Not yet in a podcast app |
+| Feed | Played in Apple Podcasts on one iPhone, over home Wi-Fi, and after downloading, with the phone offline. Skipping ahead and the file format were checked with command-line tools. Not yet in another app |
 | Daily schedule | The file is valid. Not yet left running |
 | Adding another voice | The way in is tested with Kokoro and a made-up voice. Not with Qwen, Microsoft or any other tool |
 | Linux | No |
