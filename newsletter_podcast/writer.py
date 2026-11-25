@@ -25,7 +25,7 @@ def defuse(text):
     """Stop a newsletter from closing its own tag and posing as instructions, and
     from using @ to pull in a file: Claude Code reads the file after an @ sign.
     The look-alike character means the same thing to a reader."""
-    return re.sub(r"<(?=\s*/?\s*newsletter)", "(", text, flags=re.I).replace("@", "\uff20")
+    return re.sub(r"<(?=\s*(?:/\s*)?newsletter)", "(", text, flags=re.I).replace("@", "\uff20")
 
 
 def build_prompt(template, config, issues, now=None):
@@ -136,7 +136,7 @@ def clean_script(text):
     """Remove anything that shouldn't be read aloud."""
     text = re.sub(r"https?://\S+", "", text)
     text = re.sub(r"^[ \t]*(#{1,6}|[-*•])[ \t]+", "", text, flags=re.M)
-    text = re.sub(r"[*`]+|\b_+|_+\b", "", text).replace("\uff20", "@")
+    text = re.sub(r"[*`]+|(?<!\w)_++|(?<!_)_++(?!\w)", "", text).replace("\uff20", "@")
     return re.sub(r"\n{3,}", "\n\n", text).strip() + "\n"
 
 

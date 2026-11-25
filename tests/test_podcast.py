@@ -148,6 +148,9 @@ class MailTests(unittest.TestCase):
         start = time.time()
         mail.tidy("\n" * 300_000 + "Caption: hi" + "( " * 100_000)
         writer.clean_script("\n" * 100_000 + "*a " * 50_000)
+        writer.clean_script("a" + "_" * 200_000 + "b")
+        writer.defuse("<" + "\u3000" * 300_000 + "x")
+        mail.read_message(b"Content-Type: text/html\n\n" + b"<a " * 100_000 + b"<!--" * 100_000, 0)
         self.assertLess(time.time() - start, 3)
 
     def test_oversized_email_is_listed_but_not_read(self):
@@ -298,6 +301,7 @@ class WriterTests(unittest.TestCase):
 
     def test_script_cleanup(self):
         self.assertEqual(writer.clean_script("# Title\n- **Bold** and https://x.example/a\n\n\n\nEnd"), "Title\nBold and \n\nEnd\n")
+        self.assertEqual(writer.clean_script("_one_ snake_case __two__ `x`"), "one snake_case two x\n")
 
 
 class VoiceTests(unittest.TestCase):
