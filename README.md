@@ -318,7 +318,7 @@ The address contains a long random word, and anyone who has it can listen. The c
 
 ## Run it every morning (Mac)
 
-Do this only after `uv run podcast.py run` has worked once by hand. I've checked that the schedule file is valid, but I haven't left it running.
+Do this only after `uv run podcast.py run` has worked once by hand. On my Mac, a scheduled run started on time and made the demo episode, and one that failed showed a notification. I haven't tried it with a real mailbox, from sleep, or over several days.
 
 This writes a schedule file for 5:00 AM. Nothing runs yet:
 
@@ -387,7 +387,7 @@ What's left is that a hostile newsletter could still try to change the words you
 | Mail reading | Yes, on one real Gmail account: 48 newsletters in one run. About 45 specific claims in that episode were looked up, and all were in the newsletters |
 | Anthropic API | Only with a stand-in. Not yet with a real key |
 | Feed | Played in Apple Podcasts on one iPhone, over home Wi-Fi, and after downloading, with the phone offline. Skipping ahead and the file format were checked with command-line tools. Not yet in another app |
-| Daily schedule | The file is valid. Not yet left running |
+| Daily schedule | Started on time on one awake Mac. One run failed on purpose and showed a notification. One made the full demo episode with Claude Code and the Mac voice. Not yet with a real mailbox, from sleep, or over several days |
 | Adding another voice | The way in is tested with Kokoro and a made-up voice. Not with Qwen, Microsoft or any other tool |
 | Linux | No |
 
