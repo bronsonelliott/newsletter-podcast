@@ -20,7 +20,7 @@ LARGEST_EMAIL = 10_000_000     # bytes; a newsletter is usually well under 1 mil
 LABEL = re.compile(r"(View image:|Follow image link:|Caption:)")
 # Characters that break a podcast feed or can't be printed.
 UNSAFE = re.compile("[^\t\n\r\u0020-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]")
-INVISIBLE = re.compile("[­͏​-‏ -‮⁠-⁤﻿]")
+INVISIBLE = re.compile("[\u00ad\u034f\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]")
 
 
 @dataclass

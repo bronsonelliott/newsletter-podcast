@@ -8,7 +8,6 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from email.utils import formatdate
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 
 from .mail import UNSAFE
 

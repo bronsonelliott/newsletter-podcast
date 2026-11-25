@@ -16,7 +16,12 @@ ROOT = Path(__file__).resolve().parent.parent
 LOUDNESS = "loudnorm=I=-16:TP=-1.5:LRA=11"      # the usual podcast level
 MAC_WORDS_PER_MINUTE = 175
 DEFAULT_KOKORO_VOICE = "am_echo"
+MAC_VOICE_SECONDS = 600      # it takes seconds, but now and then it finishes and never exits
 LONGEST_PATH = 159      # Kokoro's pronunciation library can't read a longer folder path
+
+
+class TookTooLong(PodcastError):
+    """A program was stopped for running past its limit."""
 
 
 def kokoro_python(audio):
@@ -64,16 +69,28 @@ def voice_command(audio, text_path, sound_path):
     return command + (["-v", audio["voice"]] if audio["voice"] else [])
 
 
-def run_tool(command, label, folder):
+def run_tool(command, label, folder, limit=3600):
     try:
         return subprocess.run(command, check=True, capture_output=True, text=True, cwd=folder,
-                              env=plain_environment(), timeout=3600)
+                              env=plain_environment(), timeout=limit)
     except FileNotFoundError:
         raise PodcastError(f"{label} isn't installed. See the README.")
     except subprocess.TimeoutExpired:
-        raise PodcastError(f"{label} ran for an hour without finishing.")
+        raise TookTooLong(f"{label} ran for {limit // 60} minutes without finishing.")
     except subprocess.CalledProcessError as problem:
         raise PodcastError(f"{label} failed: {problem.stderr.strip()[-300:]}")
+
+
+def record(audio, text_path, sound_path, folder):
+    """Run the voice. The Mac voice gets a second try if it gets stuck."""
+    command = voice_command(audio, text_path, sound_path)
+    if audio["engine"] != "mac":
+        return run_tool(command, "The voice", folder)
+    try:
+        return run_tool(command, "The voice", folder, MAC_VOICE_SECONDS)
+    except TookTooLong:
+        print("The Mac voice got stuck. Trying once more ...", flush=True)
+        return run_tool(command, "The voice", folder, MAC_VOICE_SECONDS)
 
 
 def make_mp3(script, mp3_path, audio):
@@ -85,7 +102,7 @@ def make_mp3(script, mp3_path, audio):
         # The Mac voice treats [[...]] as commands, so never pass any through.
         text_path.write_text(re.sub(r"\[+", "[", re.sub(r"\]+", "]", script)), encoding="utf-8")
         sound_path = Path(folder) / ("sound.wav" if audio["engine"] == "kokoro" else "sound.aiff")
-        run_tool(voice_command(audio, text_path, sound_path), "The voice", folder)
+        record(audio, text_path, sound_path, folder)
         try:
             # Write to a .part file first, so a half-made MP3 never becomes an episode.
             run_tool(["ffmpeg", "-y", "-loglevel", "error", "-i", str(sound_path), "-af", LOUDNESS, "-ar", "44100", "-ac", "1",

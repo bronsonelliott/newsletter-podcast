@@ -138,7 +138,7 @@ class MailTests(unittest.TestCase):
         self.assertIn("two", text)
 
     def test_tidy_removes_links_invisible_characters_and_footers(self):
-        self.assertEqual(mail.tidy("A​B https://x.example/y?z=1\n\n\n\nUnsubscribe here\nEnd"), "AB\n\nEnd")
+        self.assertEqual(mail.tidy("A\u200bB https://x.example/y?z=1\n\n\n\nUnsubscribe here\nEnd"), "AB\n\nEnd")
 
     def test_tidy_removes_a_link_and_its_brackets_but_keeps_the_words(self):
         self.assertEqual(mail.tidy("Read [the report](https://x.example/a?b=1) (40 pages) now"), "Read [the report] (40 pages) now")
@@ -384,6 +384,19 @@ class VoiceTests(unittest.TestCase):
         self.assertEqual(seen["command"][1], "-I")
         self.assertNotIn("IMAP_PASSWORD", seen["env"])
         self.assertNotEqual(Path(seen["cwd"]).resolve(), Path(tempfile.gettempdir()).resolve())
+
+    def test_stuck_mac_voice_gets_one_more_try_and_kokoro_does_not(self):
+        for engine, tries, limit in (("mac", 2, speak.MAC_VOICE_SECONDS), ("kokoro", 1, 3600)):
+            limits = []
+
+            def run(command, **options):
+                limits.append(options["timeout"])
+                raise subprocess.TimeoutExpired(command, options["timeout"])
+
+            with mock.patch.object(speak.subprocess, "run", run), mock.patch("builtins.print"):
+                with self.assertRaisesRegex(PodcastError, "without finishing"):
+                    speak.record(self.audio(engine=engine), "a.txt", "b.aiff", ".")
+            self.assertEqual(limits, [limit] * tries)
 
     def test_failed_voice_leaves_no_episode(self):
         def run(command, **options):
