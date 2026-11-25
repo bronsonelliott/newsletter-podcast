@@ -204,6 +204,8 @@ uv run podcast.py demo
 
 ### 1. Put them in one folder
 
+**Tip: let a label do the sorting.** Make one Gmail label just for newsletters, and have Gmail add it as they arrive. The program looks only at mail with that label, so you never have to list your newsletters here. When you subscribe to a new one, add its sender to the filter, and that's all you have to change.
+
 For Gmail:
 
 1. Search for a sender you want, click the sliders icon in the search box, then **Create filter**.
@@ -215,7 +217,7 @@ For Gmail:
 
 If your filter already deletes newsletters on arrival, you can keep it that way and set `include_trash = true` in step 3 below. Gmail keeps the label on them, but a program reading the label won't see them without that setting.
 
-Other mail services that support IMAP with a password should work too. I've only tested Gmail.
+**Not on Gmail?** Look for a rule or filter that moves newsletters into a folder of their own, and use that folder's name for `folder` in step 3. The program reads folders. A Gmail label counts as one, but in some other mail services a tag or category doesn't, and the program can't see it. You also need to set `host` to your mail service's IMAP server. Services that support IMAP with a password should work, but I've only tested Gmail. Outlook.com won't, because Microsoft [ended that kind of sign-in](https://support.microsoft.com/en-us/topic/c5d65390-9676-4763-b41f-d7986499a90d) in September 2024.
 
 ### 2. Give the program a password
 
