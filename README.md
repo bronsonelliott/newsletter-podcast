@@ -216,11 +216,11 @@ The check should say `OK   voice:` and the folder's name. If you haven't set up 
 3. **Check.** `speak.py --check` exits with 0 if everything is installed. If not, it prints what's wrong and exits with anything else. It downloads nothing and costs nothing, so for an online tool it doesn't show that the service can be reached.
 4. **Fail clearly.** If a recording fails, print why and exit with anything but 0. Check that the sound file was made, because some tools report success when they fail.
 5. **Read the whole script.** It can be 5,000 words or more. If the tool has a limit, split the text and join the sound. A recording is stopped after an hour.
-6. **Own packages.** If the folder has a `.venv`, its Python runs `speak.py`. If not, the main program's Python does.
+6. **Own packages.** If the folder has a `.venv`, its Python runs `speak.py`. If not, the main program's Python does. List the packages in `requirements.txt` in the same folder, with the install steps in a comment at the top. If there's a downloaded model, keep it out of Git with a `.gitignore` in that folder.
 7. **One file.** `speak.py` can't import other files beside it. It can run other programs, but it starts in a temporary folder, and a scheduled run looks for programs in fewer places than Terminal does. So look in the usual install folders too, such as `/opt/homebrew/bin` and `/usr/local/bin`.
-8. **Own password.** `speak.py` is never handed the passwords in the main `.env`. If the tool needs a key, keep it in `voices/short-name/.env`, run `chmod 600` on it, and have `speak.py` read it from there. Git ignores that file.
+8. **Own settings and password.** `speak.py` gets only `PATH`, `HOME`, `LANG` and `HF_HOME` from your settings in Terminal, so anything else it needs, it sets itself. It is never handed the passwords in the main `.env`. If the tool needs a key, keep it in `voices/short-name/.env`, run `chmod 600` on it, and have `speak.py` read it from there. Git ignores that file.
 
-A voice you add is a program running under your account, so look at what your agent wrote before you use it. If the tool runs online, your script goes to that company. Check its terms too, because a tool can be free and still use a service in a way the company doesn't offer.
+A voice you add is a program running under your account, so look at what your agent wrote before you use it. If the tool runs online, your script goes to that company. Check its terms too, because a tool can be free and still use a service in a way the company doesn't offer. And listen before you rely on it: some voices can say things that aren't in the script. In one 19-minute Qwen recording, a speech-to-text transcript showed one spot with garbled words and part of a sentence said twice.
 
 ### Change the demo's voice
 
@@ -389,7 +389,7 @@ What's left is that a hostile newsletter could still try to change the words you
 | Anthropic API | Only with a stand-in. Not yet with a real key |
 | Feed | Played in Apple Podcasts on one iPhone, over home Wi-Fi, and after downloading, with the phone offline. Skipping ahead and the file format were checked with command-line tools. Not yet in another app |
 | Daily schedule | Started on time on one awake Mac. One run failed on purpose and showed a notification. One made the full demo episode with Claude Code and the Mac voice. Not yet with a real mailbox, from sleep, or over several days |
-| Adding another voice | Kokoro and espeak-ng. A fresh Claude added espeak-ng from this repo and an earlier version of the prompt in [Use any other voice](#use-any-other-voice), and it recorded the whole sample script. Another fresh Claude added a Microsoft voice through edge-tts, an unofficial tool, from the prompt as it was on November 25, 2026. That voice recorded a whole made-up script, and a short piece of it through the main program. Not Microsoft's paid Azure voices, Qwen or any other tool |
+| Adding another voice | Kokoro and espeak-ng. A fresh Claude added espeak-ng from this repo and an earlier version of the prompt in [Use any other voice](#use-any-other-voice), and it recorded the whole sample script. Another fresh Claude added a Microsoft voice through edge-tts, an unofficial tool, from the prompt as it was on November 25, 2026. That voice recorded a whole made-up script, and a short piece of it through the main program. A third fresh Claude added Qwen3-TTS (the 1.7B model, through mlx-audio) the same way. It recorded the whole sample script through the main program with the internet blocked, 19.5 minutes of sound in 5.1 minutes, with the one garbled spot described above. Not Microsoft's paid Azure voices or any other tool |
 | Linux | No |
 
 To run the automatic tests, which end with `OK` and cost nothing:
