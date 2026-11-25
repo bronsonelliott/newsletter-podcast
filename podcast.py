@@ -66,7 +66,7 @@ def make_episode(config, secrets, args):
             return
         missing = [] if no_audio else speak.missing_parts(config["audio"])
         if missing:      # find out before paying for a script
-            raise PodcastError(f"Not installed: {', '.join(missing)}. See the README, or add --no-audio.")
+            raise PodcastError(f"Not ready: {', '.join(missing)}. See the README, or add --no-audio.")
         issues, dropped = get_issues(config, secrets, args)
         print(f"{len(issues)} newsletters, {sum(len(i.text) for i in issues):,} characters")
         for issue, reason in dropped:
@@ -105,7 +105,7 @@ def check(config, secrets):
 
     report(sys.version_info >= (3, 11), "Python 3.11 or newer", f"this is {sys.version.split()[0]}")
     missing = speak.missing_parts(config["audio"])
-    report(not missing, f"voice: {config['audio']['engine']}", f"not installed: {', '.join(missing)}")
+    report(not missing, f"voice: {config['audio']['engine']}", f"not ready: {', '.join(missing)}")
     if config["writer"]["backend"] == "api":
         report(importlib.util.find_spec("anthropic") is not None, "anthropic", "install the requirements")
         report(bool(secrets.get("ANTHROPIC_API_KEY")), "Anthropic API key", "add ANTHROPIC_API_KEY to .env")

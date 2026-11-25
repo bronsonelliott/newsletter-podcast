@@ -1,5 +1,6 @@
 """Run with: uv run -m unittest discover tests"""
 
+import importlib.util
 import json
 import os
 import ssl
@@ -312,31 +313,68 @@ class VoiceTests(unittest.TestCase):
         with mock.patch.object(speak.shutil, "which", return_value=None):
             self.assertEqual(speak.missing_parts(self.audio(engine="none")), [])
 
+    def added_voice(self, program):
+        """Make voices/mine/speak.py in a throwaway folder and use that as voices/."""
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        home = Path(folder.name) / "mine"
+        home.mkdir()
+        (home / "speak.py").write_text(program)
+        patch = mock.patch.object(speak, "VOICES", Path(folder.name))
+        patch.start()
+        self.addCleanup(patch.stop)
+        return home
+
     def test_missing_voice_is_named(self):
-        self.assertIn("Kokoro", " ".join(speak.missing_parts(self.audio(engine="kokoro", kokoro_python="nowhere/python"))))
+        self.assertIn("voices/nowhere/speak.py", " ".join(speak.missing_parts(self.audio(engine="nowhere"))))
         with mock.patch.object(speak.shutil, "which", return_value=None):
             self.assertEqual(len(speak.missing_parts(self.audio())), 3)
 
+    def test_added_voice_is_asked_if_it_is_ready(self):
+        home = self.added_voice("import sys\nsys.exit(sys.argv[1:] != ['--check'])")
+        with mock.patch.object(speak.shutil, "which", return_value="/usr/bin/x"):
+            self.assertEqual(speak.missing_parts(self.audio(engine="mine")), [])
+            (home / "speak.py").write_text("import sys\nsys.exit('needs a key')")
+            self.assertIn("needs a key", speak.missing_parts(self.audio(engine="mine"))[0])
+
+    def test_added_voice_gets_the_script_and_no_passwords(self):
+        home = self.added_voice("import json, os, sys\nfrom pathlib import Path\n"
+                                "Path(sys.argv[2]).write_text(json.dumps([Path(sys.argv[1]).read_text(), sys.argv[3:], dict(os.environ)]))")
+        with mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "k", "IMAP_PASSWORD": "p"}):
+            (home / "script.txt").write_text("Hello")
+            speak.record(self.audio(engine="mine", voice="amy"), home / "script.txt", home / "out.wav", home)
+        script, rest, environment = json.loads((home / "out.wav").read_text())
+        self.assertEqual((script, rest), ("Hello", ["amy", "1.0"]))
+        self.assertFalse({"ANTHROPIC_API_KEY", "IMAP_PASSWORD"} & set(environment))
+
+    def test_added_voice_uses_its_own_python_and_ignores_stray_files(self):
+        home = self.added_voice("")
+        self.assertEqual(speak.voice_program("mine")[:2], [sys.executable, "-I"])
+        (home / ".venv/bin").mkdir(parents=True)
+        (home / ".venv/bin/python").touch()
+        self.assertEqual(speak.voice_program("mine")[0], str(home / ".venv/bin/python"))
+
+    def test_kokoro_says_when_it_is_not_installed(self):
+        with mock.patch.object(speak, "voice_program", return_value=[sys.executable, "-I", str(ROOT / "voices/kokoro/speak.py")]):
+            self.assertIn("isn't installed", speak.voice_problem("kokoro"))
+
     def test_a_folder_path_too_long_for_kokoro_is_explained(self):
-        with tempfile.TemporaryDirectory() as folder:
-            for name, problems in (("short", 0), ("x" * 120, 1)):
-                home = Path(folder).resolve() / name
-                data = home / "lib/python3.12/site-packages/espeakng_loader/espeak-ng-data"
-                data.mkdir(parents=True)
-                python = home / "bin/python"
-                python.parent.mkdir()
-                python.touch()
-                with mock.patch.object(speak.subprocess, "run", return_value=types.SimpleNamespace(returncode=0)), \
-                        mock.patch.object(speak.shutil, "which", return_value="/usr/bin/x"), \
-                        mock.patch.object(speak, "LONGEST_PATH", len(str(Path(folder).resolve())) + 100):
-                    missing = speak.missing_parts(self.audio(engine="kokoro", kokoro_python=str(python)))
-                self.assertEqual(len(missing), problems, missing)
+        spec = importlib.util.spec_from_file_location("kokoro_speak", ROOT / "voices/kokoro/speak.py")
+        kokoro = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(kokoro)
+        fakes = {name: types.ModuleType(name) for name in ("en_core_web_sm", "kokoro", "numpy", "soundfile")}
+        with tempfile.TemporaryDirectory() as folder, mock.patch.dict(sys.modules, fakes), mock.patch.object(sys, "prefix", folder):
+            (Path(folder) / "lib/python3.12/site-packages/espeakng_loader/espeak-ng-data").mkdir(parents=True)
+            kokoro.check()
+            kokoro.LONGEST_PATH = 20
+            with self.assertRaisesRegex(SystemExit, "shorter path"):
+                kokoro.check()
 
     def test_commands_for_each_voice(self):
         mac = speak.voice_command(self.audio(speed=2.0), "t", "s")
         self.assertEqual(mac, ["say", "-f", "t", "-o", "s", "-r", "350"])
         self.assertEqual(speak.voice_command(self.audio(voice="Samantha"), "t", "s")[-2:], ["-v", "Samantha"])
-        self.assertEqual(speak.voice_command(self.audio(engine="kokoro"), "t", "s")[-4:], ["t", "s", "am_echo", "1.0"])
+        self.assertEqual(speak.voice_command(self.audio(engine="kokoro"), "t", "s")[-4:], ["t", "s", "", "1.0"])
 
     def record(self, script="Hello"):
         """Run make_mp3 with every outside program replaced. Returns what they were given."""
@@ -372,20 +410,7 @@ class VoiceTests(unittest.TestCase):
             _, seen, _ = self.record("[" * brackets + "slnc 9" + "]" * brackets)
             self.assertIn("[slnc 9]", seen)
 
-    def test_kokoro_check_ignores_stray_files(self):
-        seen = {}
-
-        def run(command, **options):
-            seen.update(command=command, **options)
-            return types.SimpleNamespace(returncode=0)
-
-        with mock.patch.object(speak.subprocess, "run", run), mock.patch.dict(os.environ, {"IMAP_PASSWORD": "p"}):
-            speak.kokoro_works("python")
-        self.assertEqual(seen["command"][1], "-I")
-        self.assertNotIn("IMAP_PASSWORD", seen["env"])
-        self.assertNotEqual(Path(seen["cwd"]).resolve(), Path(tempfile.gettempdir()).resolve())
-
-    def test_stuck_mac_voice_gets_one_more_try_and_kokoro_does_not(self):
+    def test_stuck_mac_voice_gets_one_more_try_and_others_do_not(self):
         for engine, tries, limit in (("mac", 2, speak.MAC_VOICE_SECONDS), ("kokoro", 1, 3600)):
             limits = []
 
@@ -501,7 +526,7 @@ class SettingsTests(unittest.TestCase):
     def test_mistakes_are_explained(self):
         for text, words in (("[show]\nnmae='x'", "nmae"), ("[shwo]\nname='x'", "shwo"), ("[show]\nminutes='x'", "minutes"),
                             ("[show]\nminutes=0", "1 or more"), ("[writer]\nbackend='x'", "backend"),
-                            ("[audio]\nengine='x'", "engine"), ("[audio]\nspeed=0.0", "speed"), ("[show", "typo")):
+                            ("[audio]\nengine='../x'", "engine"), ("[audio]\nengine=''", "engine"), ("[audio]\nspeed=0.0", "speed"), ("[show", "typo")):
             with self.assertRaisesRegex(PodcastError, words):
                 self.load(text)
 

@@ -4,9 +4,9 @@ Turn the newsletters piling up in your inbox into one private podcast episode a 
 
 It reads one mailbox folder, gives Claude every newsletter in it, and asks for a script: the stories most of them cover, then the smaller ones worth knowing. Your own computer reads the script aloud. When several newsletters cover the same story, you hear it once. When one of them corrects the others, Claude is told to use the correction. It won't mention everything: 48 newsletters don't fit in 15 minutes.
 
-- **Your newsletters, your show.** You choose the folder, the length, the topics that always get a section, and the voice. Two voices work out of the box or with one extra install, and you can also take the script as text and use your own. The show's instructions are in `prompt.md`, in plain English, for you to edit.
+- **Your newsletters, your show.** You choose the folder, the length, the topics that always get a section, and the voice. The Mac's own voice works right away, Kokoro is one install, and you can plug in any other text-to-speech tool. The show's instructions are in `prompt.md`, in plain English, for you to edit.
 - **No newsletter is cut short.** Claude gets the full text of each one, minus links and footer lines. If there's too much, the program stops and tells you. Anything it doesn't send (your skip list, second copies, empty emails, emails over 10 MB) is listed when you run it.
-- **Private, with one exception.** Episodes stay on your computer, and nothing is published. But Claude writes the script, so your newsletters' text goes to Anthropic. Your passwords don't.
+- **Private, with one exception.** Episodes stay on your computer, and nothing is published. But Claude writes the script, so your newsletters' text goes to Anthropic. Your passwords don't. (If you add an online voice, the script goes to that company too.)
 - **Claude can't do anything but write.** It gets text, with no tools, files, web access or passwords.
 
 **Hear one first:** [`sample/episode-kokoro.mp3`](sample/episode-kokoro.mp3) is a real episode from November 24, 2026 (about 15 minutes), made from 48 newsletters in my inbox and read by Kokoro, the optional voice. On GitHub, click the download button on that page. [Compare the two voices](#compare-the-two-voices) shows how to hear the other one, and [About the sample episode](#about-the-sample-episode) says what I checked.
@@ -124,8 +124,9 @@ The voice is set by `engine`, under `[audio]` in `config.toml`:
 | Engine | What you get | What it needs |
 |---|---|---|
 | `"mac"` | The voice your Mac is set to. This is the default, so you can try things right away. Apple's macOS license limits it to personal, non-commercial use | Nothing more |
-| `"kokoro"` | A free voice model that runs on your computer and sounds more natural. **This is the one I'd use for a daily show** | The install below |
-| `"none"` | The script as text, for any text-to-speech tool you like | Nothing more |
+| `"kokoro"` | A free voice model that runs on your computer and sounds more natural. **This is the one I use, because I like its voices better** | The install below |
+| A voice you add | Any other text-to-speech tool, such as Qwen3-TTS or one of Microsoft's voices | [A folder in `voices/`](#use-any-other-voice), which a coding agent can write for you |
+| `"none"` | The script as text, with no recording | Nothing more |
 
 ### Compare the two voices
 
@@ -191,6 +192,34 @@ Kokoro's default here is `am_echo`. To use another, put its name in `voice`, als
 **About trust.** Ninety-one packages is a lot of other people's code. The list pins each one to an exact version and checks its fingerprint (a hash), so you get the same files I listed. The voice runs as a separate program that is handed only the script. Even so, any program running under your account could open the `.env` file, so install only what you're comfortable with.
 
 **The voice file isn't checked.** The fingerprints cover the packages, not Kokoro's voice file, which comes from the Kokoro account on Hugging Face, a site that hosts AI models. In November 2026, [researchers took over that account](https://www.bleepingcomputer.com/news/security/researchers-hijack-hugging-face-account-for-popular-kokoro-ai-model/) to show it could be done. They say they never uploaded a changed file. A changed file could make the voice say something other than the script.
+
+### Use any other voice
+
+Kokoro is only my pick. Nothing in the main program depends on it. Each added voice is a folder in `voices/` holding one program, `speak.py`, and `engine` is the folder's name. `voices/kokoro/` is the example.
+
+You don't have to write that program yourself. Open this project's folder in Claude Code or another coding agent and paste this, with your choice filled in:
+
+```
+Add a voice to this project that uses [text-to-speech tool]. Follow "The rules for a voice" in README.md and
+use voices/kokoro/speak.py as the example. Put everything in voices/[short-name]/ and change nothing outside it.
+Before you install anything, tell me what you'll download, how big it is, what it costs, whether my script leaves
+my computer, and whether its license allows how I plan to use it. Then test it with sample/script.txt.
+```
+
+Then set `engine` to that folder's name, and run `uv run podcast.py check`.
+
+**The rules for a voice**
+
+1. **Name.** The folder's name has only small letters, numbers, `-` and `_`.
+2. **Record.** The main program runs `speak.py SCRIPT OUTPUT VOICE SPEED`. Read the text file at `SCRIPT` and write a WAV file at `OUTPUT`. `VOICE` and `SPEED` come from `config.toml`. If `VOICE` is blank, use a default. A `SPEED` of 1.0 is normal.
+3. **Check.** `speak.py --check` exits with 0 if everything is installed. If not, it prints what's wrong and exits with anything else. It downloads nothing and costs nothing.
+4. **Fail clearly.** If a recording fails, print why and exit with anything but 0.
+5. **Read the whole script.** It can be 5,000 words or more. If the tool has a limit, split the text and join the sound. A recording is stopped after an hour.
+6. **Own packages.** If the folder has a `.venv`, its Python runs `speak.py`. If not, the main program's Python does.
+7. **One file.** `speak.py` can't import other files beside it. It can run other programs.
+8. **Own password.** `speak.py` is never handed the passwords in the main `.env`. If the tool needs a key, keep it in `voices/short-name/.env`, run `chmod 600` on it, and have `speak.py` read it from there. Git ignores that file.
+
+A voice you add is a program running under your account, so look at what your agent wrote before you use it. If the tool runs online, your script goes to that company.
 
 ### Change the demo's voice
 
@@ -287,8 +316,6 @@ Click **Allow** if macOS asks about incoming connections. Start `serve` again, t
 
 The address contains a long random word, and anyone who has it can listen. The connection isn't encrypted, so keep it on a network you trust and don't open it to the internet.
 
-**Please don't publish the feed.** The episodes are built from other people's writing, much of it paid for. (The sample here is one day, shared to show how the voices sound.)
-
 ## Run it every morning (Mac)
 
 Do this only after `uv run podcast.py run` has worked once by hand. I've checked that the schedule file is valid, but I haven't left it running.
@@ -331,7 +358,7 @@ To change the time, or if you move the project folder, stop the schedule and mak
 
 ## What it costs
 
-Recording is free with either voice, because it happens on your computer. Writing the script costs whatever Claude charges for the text it reads and writes. At Claude Opus 5.5's list price in November 2026 ($4 per million tokens read, $20 per million written), the demo works out to about $0.22. A real day with 48 newsletters (146,419 tokens read, 11,565 written) works out to about $0.82. Sonnet 5.5 is about half that: set `model = "claude-sonnet-5-5"`. These are calculations from token counts, so check your own bill.
+Recording is free with the Mac voice or Kokoro, because it happens on your computer. A voice you add may cost something. Writing the script costs whatever Claude charges for the text it reads and writes. At Claude Opus 5.5's list price in November 2026 ($4 per million tokens read, $20 per million written), the demo works out to about $0.22. A real day with 48 newsletters (146,419 tokens read, 11,565 written) works out to about $0.82. Sonnet 5.5 is about half that: set `model = "claude-sonnet-5-5"`. These are calculations from token counts, so check your own bill.
 
 ## How it stays safe
 
@@ -359,6 +386,7 @@ What's left is that a hostile newsletter could still try to change the words you
 | Anthropic API | Only with a stand-in. Not yet with a real key |
 | Feed | Address, skipping ahead and file format, with command-line tools. Not yet in a podcast app |
 | Daily schedule | The file is valid. Not yet left running |
+| Adding another voice | The way in is tested with Kokoro and a made-up voice. Not with Qwen, Microsoft or any other tool |
 | Linux | No |
 
 To run the automatic tests, which end with `OK` and cost nothing:
@@ -376,7 +404,7 @@ uv run -m unittest discover tests
 | `newsletter_podcast/mail.py` | Reads the mailbox folder and turns emails into text |
 | `newsletter_podcast/writer.py` | Sends the text to Claude and checks what comes back |
 | `newsletter_podcast/speak.py` | Runs the voice you picked and makes the MP3 |
-| `voices/kokoro/` | The small program that runs Kokoro, and its package list |
+| `voices/` | One folder for each added voice. `voices/kokoro/` is the example: a small program that runs Kokoro, and its package list |
 | `newsletter_podcast/feed.py` | Keeps the episode list, builds the feed, serves it, deletes old episodes |
 | `newsletter_podcast/settings.py` | Reads `config.toml` and `.env` |
 | `config.example.toml`, `.env.example` | The settings files you copy in step 2 |

@@ -23,10 +23,9 @@ effort = "medium"                # low, medium, high, xhigh or max
 max_characters = 1000000         # stop if the newsletters add up to more than this
 
 [audio]
-engine = "mac"                   # "mac" = built in, "kokoro" = better, installed separately, "none" = script only
+engine = "mac"                   # "mac" = built in, "none" = script only, or the name of a folder in voices/, such as "kokoro"
 voice = ""                       # blank uses the engine's default
 speed = 1.0
-kokoro_python = "voices/kokoro/.venv/bin/python"
 
 [output]
 folder = "output"

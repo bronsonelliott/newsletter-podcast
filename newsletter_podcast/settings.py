@@ -1,5 +1,6 @@
 """Read config.toml and .env."""
 
+import re
 import stat
 import tomllib
 from pathlib import Path
@@ -12,8 +13,7 @@ DEFAULTS = {
              "hours": 24, "minimum_issues": 3, "skip": [], "include_trash": False},
     "writer": {"backend": "api", "model": "claude-opus-5-5", "effort": "medium",
                "max_characters": 1_000_000},
-    "audio": {"engine": "mac", "voice": "", "speed": 1.0,
-              "kokoro_python": "voices/kokoro/.venv/bin/python"},
+    "audio": {"engine": "mac", "voice": "", "speed": 1.0},
     "output": {"folder": "output", "keep_days": 14},
     "feed": {"host": "127.0.0.1", "port": 8765, "base_url": "http://127.0.0.1:8765"},
 }
@@ -42,8 +42,8 @@ def load_config(path):
             config[section][name] = value
     if config["writer"]["backend"] not in ("api", "claude-code"):
         raise PodcastError('config.toml: backend must be "api" or "claude-code"')
-    if config["audio"]["engine"] not in ("mac", "kokoro", "none"):
-        raise PodcastError('config.toml: engine must be "mac", "kokoro" or "none"')
+    if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", config["audio"]["engine"]):      # a folder name, never a path
+        raise PodcastError('config.toml: engine must be "mac", "none" or the name of a folder in voices/')
     if config["audio"]["speed"] <= 0:
         raise PodcastError("config.toml: speed must be more than 0")
     if config["show"]["minutes"] < 1 or config["mail"]["hours"] < 1 or config["output"]["keep_days"] < 1:
