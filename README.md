@@ -11,6 +11,8 @@ It reads one mailbox folder, asks Claude to write a script that covers everythin
 
 I've had a personal version of this running daily since at least April 2026, and [wrote about it here](https://bronsonelliott.substack.com/p/i-built-a-daily-ai-podcast-that-runs). This is a new, simpler build of the same idea. See [What's been tested](#whats-been-tested) before you rely on it.
 
+**Hear one first:** [`sample/episode-kokoro.mp3`](sample/episode-kokoro.mp3) is a real episode from November 24, 2026 (about 15 minutes), made from 48 newsletters in my inbox and read by Kokoro, the optional voice. On GitHub, click the download button on that page. [Compare the two voices](#compare-the-two-voices) shows how to hear the other one, and [About the sample episode](#about-the-sample-episode) says what I checked.
+
 ## Try it first, without your email
 
 The repo comes with 12 made-up newsletters in `demo/`. Two of them bury a correction to a story the others got wrong: `newsletter-08.txt` limits a price cut, and `newsletter-11.txt` limits a launch. Listen for both. Every company and person in them is invented.
@@ -102,9 +104,40 @@ Set `engine` under `[audio]` in `config.toml`:
 
 | Engine | What you get | What it needs |
 |---|---|---|
-| `"mac"` | The voice built into your Mac. This is the default, so you can try things right away | Nothing more |
+| `"mac"` | The voice your Mac is set to. This is the default, so you can try things right away. Apple's macOS license limits it to personal, non-commercial use | Nothing more |
 | `"kokoro"` | A free voice model that runs on your computer and sounds more natural. **This is the one I'd use for a daily show** | The install below |
 | `"none"` | The script as text, for any text-to-speech tool you like | Nothing more |
+
+### Compare the two voices
+
+Both of these read the same script, `sample/script.txt`, which Claude wrote from a real day of newsletters. Neither one calls Claude or costs anything, and neither needs Kokoro installed.
+
+**Kokoro** (voice `am_echo`, normal speed). This opens the sample recording:
+
+```bash
+open sample/episode-kokoro.mp3
+```
+
+**Your Mac's voice**, at the speed this program uses. It starts talking right away. Press Control-C to stop:
+
+```bash
+say -r 175 -f sample/script.txt
+```
+
+There's no Mac recording in this repo because Apple's macOS license doesn't allow recordings of its voices to be shared publicly. Running the command is also the fairer test, because it uses the voice your own Mac is set to, which may not be the same as mine. The one difference from a real episode is that the program also evens out the loudness.
+
+### About the sample episode
+
+It's one real day, unedited. It is an AI summary of what newsletters said, and it isn't a fact-checked news report. I looked up about 45 of its claims in the newsletters themselves, and all were there. I then checked six of its most serious stories against news coverage. Two have a problem that came from a newsletter:
+
+- **Anthropic co-founders' share sales.** One newsletter said each of the seven sold $2 billion. [News coverage](https://247wallst.com/investing/2026/11/24/dario-and-daniela-amodei-each-sold-280-million-of-anthropic-stock-in-the-ipo/) puts it at about $280 million each, or about $2 billion for all seven. The episode gives both figures and tells you to treat them carefully.
+- **OpenRouter and Together AI.** The episode says OpenRouter dropped Together AI, as a newsletter did. [Together AI says it wasn't removed](https://www.bleepingcomputer.com/news/security/openrouter-drops-ai-providers-over-leaked-prompts-and-secrets/). The episode also credits OpenRouter with the finding, which came from security firm Dragos.
+
+The people named in legal cases are accused, not convicted.
+
+Thank you to the newsletters it names: AI Daily Brief, AI Secret, AI Valley, AlphaSignal, The AI Report, The Deep View, Intelligence by Intent, Latent Space, Model Radar, The Neuron, The Rundown, Techpresso, TLDR, TLDR AI and World of AI. They did the reporting and the thinking, so go read them. If you write one of them and want this sample taken down, open an issue and I'll remove it.
+
+### Change the demo's voice
 
 To hear today's demo in a different voice, change `engine`, delete the `.mp3` in `output/demo`, and run `uv run podcast.py demo` again. It reuses the script, so you don't pay twice.
 
@@ -178,7 +211,7 @@ As it comes, only the same computer can reach it. To reach it from a phone on yo
 
 The address contains a long random word, and anyone who has it can listen. The connection isn't encrypted, so keep it on a network you trust and don't open it to the internet.
 
-**Please don't publish the feed.** The episodes are built from other people's writing, much of it paid for.
+**Please don't publish the feed.** The episodes are built from other people's writing, much of it paid for. (The sample here is one day, shared to show how the voices sound.)
 
 ## Run it every morning (Mac)
 
@@ -251,8 +284,9 @@ uv run -m unittest discover tests
 | `newsletter_podcast/feed.py` | Keeps the episode list, builds the feed, serves it, deletes old episodes |
 | `newsletter_podcast/settings.py` | Reads `config.toml` and `.env` |
 | `demo/` | The made-up newsletters |
+| `sample/` | One real episode, read by Kokoro, and its script |
 | `output/` | Your episodes, made on the first run. Git ignores it |
 
 ## License
 
-MIT. Kokoro and its packages aren't included and have their own licenses.
+MIT. Kokoro and its packages aren't included and have their own licenses. (Kokoro's is Apache 2.0.) The sample recording was made with it. The sample script and recording summarize other people's newsletters and aren't covered by the MIT license. Your Mac's voice is covered by Apple's macOS license.
