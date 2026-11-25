@@ -346,6 +346,8 @@ cat ~/Library/Logs/newsletter-podcast.log
 
 The Mac has to be on, and you have to be logged in. If it's asleep at 5:00, the episode gets made when it wakes up. If a run fails, you should get a Mac notification, and the details are in that log. If the log shows permission errors, move the project out of Documents or Desktop.
 
+If the log says `Not logged in`, run `claude` in Terminal, type `/login`, and sign in again. This happened to my personal version once, at a 5 AM run.
+
 **A late run can miss newsletters.** Each episode covers the 24 hours before it starts. If yesterday's ran at 5:00 and today's runs at 8:00, anything that arrived between 5:00 and 8:00 yesterday is in neither. Raising `hours` under `[mail]` closes the gap, but you may hear some stories twice.
 
 To stop the schedule, copy this exactly (`com.example.newsletter-podcast` is its real name):
