@@ -1,0 +1,27 @@
+The Short Stack
+
+Good morning, and welcome to The Short Stack. It's Tuesday, the sun is out, and the news has been busy enough to keep us all honest before the second cup of coffee.
+
+Let's start with the warehouse story. Orrin Robotics has signed a deal to put 5,000 robots into Palisade Foods distribution centers. That's a serious number, and it tells you where the money is going. Nobody is writing a press release about a pilot program anymore. This is a company betting that its machines will be pulling and sorting boxes on a daily basis, at scale, inside buildings full of people who will have to learn to work alongside them. I'm curious to see how the floor workers feel about it a year from now, because the robots are the easy part of this story.
+
+Next, Cobalt says its new C3 chip runs three times faster than the Dynarc 9 on a standard inference benchmark. Chip announcements arrive every week now, and most of them blur together, but a clean head-to-head comparison on a shared benchmark is at least something you can hold up and examine. Speed on one test is not the same as speed in your product, so take it as a starting point and not a verdict. Still, a chip that does the same work in a third of the time is the kind of claim that makes engineers open a spreadsheet.
+
+Finally, Halcyon Labs announced a $2.1 billion funding round led by Brackwater Capital. Halcyon makes AI software for hospital scheduling, which sounds dull until you have waited three hours for a appointment that got moved twice. A round this size tells you investors think scheduling is a problem worth solving at a very large scale, and that hospitals are a market willing to pay for software that makes their days less chaotic.
+
+Now for the rest of the issue. Our tip of the day is a small one: if you keep a running list of tasks in a notes app, spend five minutes this afternoon deleting everything you will not do this week. You will feel lighter by dinner.
+
+In our reader poll, we asked whether you would rather have a four-day workweek or an extra week of vacation each year. The vacation camp is ahead, 58 to 42, and several of you wrote in to say that a long weekend is wasted if you spend it recovering from the week before. Fair point. We'll revisit this one in the new year.
+
+Last, a quick recommendation. Marisol Quintero's new book, The Quiet Harbor, is a slow, patient novel about two brothers running a failing ferry line on the northern coast. It isn't fast, and it doesn't need to be. Read it on a rainy evening and you'll finish it feeling like you took a short trip somewhere cold and honest.
+
+That's the stack for today. Thanks for reading, and see you tomorrow.
+
+Last week I tried to figure out why I keep buying notebooks I never fill. The honest answer is that I buy them for the person I wish I were, the one who will journal every morning and sketch the garden in pencil. That person does not exist, and the notebook knows it.
+
+So I ran a small experiment with my neighbor, Dorothea Vance, who runs a bakery two streets over and has more discipline than anyone I know. For six weeks she kept one index card in her apron pocket. On it she wrote three things she planned to do that day, never more. At the end of each day she crossed off what she finished and carried the rest to the next card. She did not color-code anything or buy a special pen.
+
+By her own count, she finished about two-thirds of her tasks, which she says is better than the color-coded planner she abandoned in March. The card worked because it was too small to lie on. There was no room for the list of ninety things she would do someday. Three items fit, and she could see all of them at once.
+
+I am not suggesting everyone switch to index cards. I am suggesting that the tool matters less than the size of the promise you make to yourself. A grand system asks you to be a different person. A small card asks you to be the one who is already here, holding a pen, with a few minutes to spare.
+
+Dorothea still has the first card. It is soft at the corners and covered in faint pencil ticks. She keeps it in a drawer, and she says it is the only planner she has ever trusted.

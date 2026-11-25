@@ -1,0 +1,2 @@
+# Only for backend = "api". Claude Code needs no packages.
+anthropic>=2.0,<3

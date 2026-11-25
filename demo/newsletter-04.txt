@@ -1,0 +1,27 @@
+Prompt & Circumstance
+
+Welcome back to Prompt & Circumstance. This is the last full stretch before the holiday slowdown, so many of you are either trying to ship something before the freeze or planning what your team will need in January. This issue covers both. The news lineup this week is also a good reason to think about how the tools you rely on are changing under you.
+
+Let's start with Tessel, which says its phone assistant, Tessel Voice, will launch worldwide on December 8. I've been skeptical of phone assistants for a long time. Most of them handle the easy questions fine and fall apart the moment you ask for something with two steps in it. So my first question about Tessel Voice isn't about the demo. It's whether the assistant can hold a thread across apps and remember what you asked for three messages ago. If it can, the way people write prompts on their phones will change, because they'll stop typing fragments and start talking in full sentences. If it can't, it'll be one more thing people try once and forget.
+
+Fennel is next. The company says its coding agent has passed one million paying users. I find that more interesting than most launch announcements, because paying users are people who decided the tool earned a place in their budget. It suggests coding agents have moved past the curious-hobbyist stage. It also raises the bar for how you review agent output. When a tool writes a lot of code for a lot of people, its failure modes become everyone's problem. This is a good moment to check how your team handles agent-written changes before the habit sets in, while the habit is still easy to shape.
+
+Verity announced that it has cut the price of its API by 40 percent, effective Monday. Price cuts are fun to celebrate, but I'd rather you not rebuild your whole stack around one. Use the lower price to rerun the experiments you shelved because they were too expensive. Look at the prompts that were limited by cost, like long-context documents or workflows where you generated several candidate answers and picked the best. A cheaper API doesn't automatically make your product better, but it does reopen questions you had closed, and some of those answers may now look different.
+
+Taken together, these three stories point the same way. Voice is moving onto the phone, agents are moving into daily work, and the cost of running models keeps dropping. Each of those makes the basic craft of writing clear instructions more valuable, not less. Whatever you write will be spoken, executed, or repeated at a much larger scale than before, and vague instructions cost more at scale. A sloppy sentence in a prompt used to cost you a bad answer. Now it can cost you a bad answer delivered by voice to a thousand people, or a bad change merged by an agent before anyone reads it.
+
+Here is what's in the rest of this issue. We have a short tip on writing prompts you can say out loud without sounding robotic, a walkthrough for setting up a cheap evaluation loop so you can test a pricing change without guessing, and a reader question about why an agent keeps dropping one instruction in the middle of a long task. I'll also share the template I've been using for meeting notes, which has gotten me out of more follow-up emails than I'd like to admit.
+
+If you only read one section, make it the evaluation walkthrough. Most teams have a pile of prompts they've never measured, and a price cut is a good excuse to start. Everything else builds from there.
+
+Let's get into it.
+
+Start with a small, boring test set. Pull twenty or thirty real inputs from your logs, the messy ones included, and write down what a good output looks like for each. You don't need a grading rubric yet. You need a shared picture of what "right" means, and that usually comes out of the first honest attempt to write it down.
+
+Next, run the current prompt against that set and save every output in a spreadsheet, along with the input. Then run the cheaper model or the new pricing configuration against the same inputs and save those outputs beside the first set. Keep the columns boring: input, old output, new output, and a column where you mark whether the new one is better, worse, or the same.
+
+Read the pairs yourself before you automate anything. You'll notice failures that no metric would have caught, like a correct answer that quietly drops a caveat customers always need, or a shorter response that reads as curt. Those observations become the second version of your rubric.
+
+Once you trust your labels, you can add a simple check for the things that are easy to verify, such as whether the output includes a required field, stays under a length limit, or avoids a banned phrase. Keep the human reading for the judgment calls.
+
+The loop only pays off if you rerun it. Every time you change a prompt or a model, run the same set again and compare. Within a few cycles you'll have a feel for where the cheaper option holds up and where it starts to slip, and that's the information you need before you decide anything about price.

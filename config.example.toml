@@ -1,0 +1,38 @@
+# Copy this file to config.toml and edit it. Git ignores config.toml.
+
+[show]
+name = "My Newsletter Briefing"
+minutes = 15                     # target length
+listener = ""                    # one sentence about you, so the show knows what matters
+always_cover = []                # topics that get their own section, e.g. ["Gardening tools"]
+
+[mail]
+host = "imap.gmail.com"
+port = 993
+user = "you@example.com"
+folder = "Newsletters"           # in Gmail, the name of the label
+hours = 24                       # how far back each episode looks
+minimum_issues = 3               # stop instead of making a thin episode
+skip = []                        # skip if the sender or subject contains any of these words
+include_trash = false            # Gmail only: true if your filter deletes newsletters as they arrive
+
+[writer]
+backend = "api"                  # "api" = Anthropic API key, "claude-code" = the claude command
+model = "claude-opus-5-5"        # "claude-sonnet-5-5" costs about half
+effort = "medium"                # low, medium, high, xhigh or max
+max_characters = 1000000         # stop if the newsletters add up to more than this
+
+[audio]
+engine = "mac"                   # "mac" = built in, "kokoro" = better, installed separately, "none" = script only
+voice = ""                       # blank uses the engine's default
+speed = 1.0
+kokoro_python = "voices/kokoro/.venv/bin/python"
+
+[output]
+folder = "output"
+keep_days = 14                   # older episodes are deleted
+
+[feed]
+host = "127.0.0.1"               # 127.0.0.1 = this computer only, 0.0.0.0 = your home network
+port = 8765
+base_url = "http://127.0.0.1:8765"

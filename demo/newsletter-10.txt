@@ -1,0 +1,39 @@
+Warehouse of the Future
+
+Welcome back to Warehouse of the Future. It's a short week for a lot of you, so I'll keep the opening tight and get to the three stories that filled my inbox this morning. Grab your coffee and let's get into it.
+
+First up, Orrin Robotics has signed a deal to put 5,000 warehouse robots into Palisade Foods distribution centers. That is a large number for a single customer agreement, and it's the kind of announcement I like to read twice. Pilot programs are easy to celebrate. A commitment of this size has to hold up under real shift schedules, real floor layouts, and real maintenance crews.
+
+What makes this deal interesting to me is what it says about where buyers are in their thinking. For years the conversation was whether robots could do the work at all. Now the question is how quickly they can be rolled out across a network of sites. Deals at this scale tend to follow a long stretch of internal testing, budget debates, and training plans, and the signing is usually the easy part. The harder work starts the day the first crates of hardware arrive at the loading docks.
+
+Second, regulators have approved the Basin data center campus outside Ridgeway, a 900-megawatt facility. Construction starts in the spring. If you cover logistics, this might look like someone else's story. It isn't. Warehouses that are automating heavily also run more software, more sensors, and more cloud-connected control systems, and all of that runs somewhere. Power is becoming one of the quiet constraints on the whole sector, and most of our readers have never had to think about it.
+
+I find the approval process for projects like this more interesting than most readers would. A 900-megawatt campus changes the local grid conversation, the water conversation, and the land-use conversation all at once. Ridgeway will be living with those changes for a long time. The people who run facilities that depend on regional power should pay attention to how the area plans for that demand, because the decisions made now will shape what their own sites can plug into later.
+
+Third, Cobalt says its new C3 chip is three times faster than the Dynarc 9 on a standard inference benchmark. Chip announcements arrive constantly, and I've come to read them the way I read a new forklift spec sheet: as the start of a conversation about what the machine can do on my floor, not the end of one. Still, a faster chip in this category always gets my attention, because it's the kind of hardware news that eventually shows up in products.
+
+Robotics is, at its core, an inference problem. The perception and decision-making a robot needs to navigate an aisle, spot a pallet that has shifted, or notice a person stepping into a lane are all inference work. Faster inference at the edge means a robot can respond locally instead of waiting on a round trip to a server. That's the sort of unglamorous improvement that tends to change what's deployable a year or two after it first appears in a press release, so it's worth filing away now.
+
+Taken together, the three stories point in one direction. Robots are being ordered in bigger batches, the facilities that house them are drawing more power, and the silicon inside them keeps getting faster. None of those trends is new, but seeing them land in the same morning is a useful reminder that automation is moving from experiment to infrastructure. The operators who treat it that way, with budgets for power, networking, and maintenance alongside the robots themselves, will be in a much better position than those who treat it as a single purchase.
+
+Now for the rest of the issue. This week we have a long conversation with Dana Whitfield, who runs fleet operations for a mid-sized regional third-party logistics provider and has strong opinions about what vendors get wrong during rollouts. She doesn't think the hardware is the hard part. Her argument is that the people who spend the first six months with a new system decide whether it lasts, and most vendor training materials don't reflect that reality.
+
+We also have a field report from a cold-storage facility that spent last quarter testing autonomous forklifts in a freezer environment, where battery behavior and sensor performance look very different than they do on a dry floor. Our contributor walked the aisles with the night crew and came back with notes that every operator in a refrigerated facility should read before running a pilot.
+
+Our buyer's guide this month takes a hard look at safety-certification paperwork. It's less exciting than it sounds, but it will save you a lot of headaches if you read it before you sign anything. We break down which documents to request, which questions tend to get vague answers, and how to set up a review process that your safety team will actually use.
+
+On the back half of the issue you'll find our regular column on warehouse labor, a short roundup of conference talks worth watching on demand, and the usual classifieds for integrators looking for projects and engineers looking for work.
+
+Finally, a note from the editor. If you're reading this on a phone, the full archive and our vendor directory are linked in the footer. If you have a rollout story you'd like us to cover, reply to this email. I read every message, even the long ones, and some of the best pieces we've run this year started with a reply from someone who was tired of the sales pitch and wanted to talk about what actually happened on their floor.
+
+That's it for the opening. Thanks for reading, and I'll see you in the next issue.
+
+Let's start with the batteries, because that's where the night crew spent most of its complaints. On a dry floor, a lithium pack that sits at a steady temperature is easy to forget about. In a freezer, it's a constant negotiation. The pack that charged well in the staging area at the dock door would drop noticeably in capacity once the forklift rolled into the cold aisles, and the operators had learned to watch the state-of-charge readout the way you'd watch a fuel gauge on a long road trip.
+
+Dani Okafor, who runs the night shift and has been on the floor for eleven years, told our contributor that the first month was mostly about trust. The machines would stop mid-aisle with a low-power warning, and the crew would have to decide whether the battery was truly empty or the controller was being overly cautious. They ended up keeping a laminated card on each truck with the charge levels they had observed at different temperature bands. It was a crude fix, but it worked better than the vendor's manual.
+
+Sensors had their own problems. Condensation forms on lenses the moment a warm pallet comes out of a cooler, and frost builds up on the housings of lidar units during long shifts. The team found that a short wipe-down routine at each break kept the readings reliable, but nobody had written it into the maintenance plan at the start. Someone had to notice the drift first, and that someone was a forklift driver who had been asked to watch for it, not an engineer.
+
+I want to be clear about what this means for your pilot. The cold-storage lesson isn't that autonomy fails in freezers. It's that your test plan has to include the conditions you'd rather not think about: the door cycling every few minutes, the wet floor at the threshold, the operator who has to step in when a sensor glitches. Put those scenarios on the test schedule before the vendor sets it for you.
+
+Ask the people who work nights what they've already worked around. They will have a list, and it will be more useful than the one in the brochure.

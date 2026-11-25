@@ -1,0 +1,33 @@
+Policy Wire
+
+Policy Wire, Tuesday, November 24, 2026
+
+Welcome back. This has been a busy week for anyone who follows the fights over artificial intelligence, and this issue covers three items that will matter well beyond the people directly involved. We'll start with the courtroom.
+
+In Meridian v. the Writers Cooperative, a judge ruled that training on copyrighted books is fair use. That is a clear win for Meridian AI, and every company that has been waiting for a verdict on the same question will read the decision closely. I want to be careful, because one ruling does not make a settled doctrine. But the reasoning will be quoted in briefs for years, and anyone who calls this a minor procedural point is not paying attention.
+
+My reaction is mixed. Writers spent years assuming their books were being absorbed into models without anyone asking them. A fair use finding means the court considered the copying during training transformative enough to allow. Whether that is the right outcome is a separate question from whether it is the expected one, and I suspect many authors will feel the gap between the two very sharply.
+
+Next, fourteen companies signed the Ostrava Accord, a voluntary safety pledge covering how large models are tested before release. The word voluntary is doing a lot of work in that sentence. Nobody is compelled to sign, nobody is penalized for staying out, and the commitments are only as strong as the good faith of the people who made them.
+
+I would not dismiss it for that reason alone. Pledges like this often become the template that later rules borrow from, so the early text matters more than its legal weight suggests. The useful question is what the accord asks signatories to do in practice. Testing before release is a reasonable thing to require. The hard part is agreeing on what counts as an adequate test, and that is exactly where a voluntary framework can drift into vagueness. If the accord ends up with no shared definition of testing, the fourteen signatures will mean less than they appear to.
+
+Finally, regulators approved the 900-megawatt Basin data center campus outside Ridgeway, and construction starts in the spring. A single site drawing that much power is a serious undertaking, and the approval is a reminder that the physical side of this industry, the land, the grid and the water supply, is where decisions actually bite. People in Ridgeway will live with the consequences long after the press release is forgotten.
+
+I would like to see the approval conditions published in full. Residents should be able to find out how a campus of that size fits into the regional grid plan, what it will do to local water use, and who pays for any new transmission lines. If the answers are not public, that is worth asking about before the first trucks arrive, not after the foundation is poured.
+
+Now for the rest of the issue. This week's reading list includes a long piece on how state procurement offices are writing AI clauses into their contracts, which I found more revealing than most of the headlines above. There is also a short interview with a former federal analyst who spent a decade working on compute reporting, and she has some blunt views on why the current thresholds are hard to enforce. Our usual roundup of hearings scheduled for next month is below that, along with a calendar of comment deadlines that tend to slip past people until it is too late to matter.
+
+We also have a reader letter pushing back on last week's column about open-weight model releases. The writer argues that restricting release mainly hurts small labs and universities, and that is a fair point I did not give enough weight to. I still think the risk calculation I laid out holds for the most capable systems, but the letter made me want to draw that line more carefully. You can read it in full in the letters section, and I have included my reply, which is shorter than the letter and, I hope, more specific.
+
+Before the rest of the issue, one housekeeping note. We are changing the send time to early morning starting next month, so the newsletter will be waiting in your inbox before your first meeting. If that timing is a problem, reply to this email and tell me what works better. I read every response, even when I cannot answer all of them.
+
+That's the opening. Read the full issue below, and as always, send me the stories I missed.
+
+Part one left off with the procurement clauses, and I want to stay there a little longer, because the language in those contracts tells you more than the press releases do. A good clause is boring. It asks the vendor to say what data was used, to notify the buyer when the model changes, and to allow an audit within a fixed window. Those are not glamorous demands, but they are the ones that can actually be enforced.
+
+The trouble starts when a clause asks for something the vendor cannot easily measure. One procurement officer I spoke with, Dana Oyelaran, who runs purchasing for a mid-sized state health agency, described a request she had to send back three times. The vendor kept answering that its system was "continuously improved," which is true of nearly every software product and tells the buyer nothing. She now asks for a version identifier and a changelog with dates, and she refuses any contract that does not name the specific model in its appendix.
+
+That sounds like a small victory, and in a way it is. But it also shows how much of the real governance work is happening in offices that were never designed to evaluate technology. Oyelaran does not have a machine learning team. She has a checklist, a legal reviewer, and a habit of asking awkward questions in the second round of negotiation. Her view is that the checklist is the policy, whether or not anyone in a legislature intended it that way.
+
+Here is what I take from it. If you want AI rules to mean something in daily use, watch the clauses rather than the statutes. The clause is where a broad principle meets a specific obligation, and where someone has to decide what counts as compliance. Most of the fights that matter will be settled there, quietly, by people who will never appear in a hearing.

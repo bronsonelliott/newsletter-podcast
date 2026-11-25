@@ -1,0 +1,23 @@
+Deal Ledger
+
+Good morning, and welcome to Deal Ledger. Today's issue opens with three stories that say something about where the money is going. Two are about software inside institutions most of us rarely think about, and one is about machines moving boxes in a warehouse. The common thread is that capital is chasing businesses that take slow, expensive human workflows and make them cheaper to run, and it is willing to pay well for that.
+
+Start with Halcyon Labs, which announced a $2.1 billion funding round led by Brackwater Capital. The company makes AI for hospital scheduling. That sounds like a narrow problem until you have spent an afternoon in a waiting room wondering why nobody can find an open operating room. Scheduling is full of exceptions and is tied to staff shifts, equipment, and insurance rules, which is why it has resisted tidy software for so long.
+
+The size of the round is the headline, but the lead investor is the detail I keep coming back to. Brackwater putting its name at the front of a raise this large signals a belief that hospitals will adopt this kind of tool across whole health systems, not just in a few pilot wards. Health care buyers move carefully, so the real story will be in the renewals and expansions over the next year. For now, the round says a lot about conviction at the top of the market.
+
+Quill makes AI tools for court reporters, and it raised $85 million at a $600 million valuation. Court reporting is a niche most generalist investors have never considered, and that is part of why this deal caught my eye. The work is precise, legally consequential, and still largely manual. A transcription tool that lawyers and judges trust in a courtroom is valuable in a way a flashy demo never is.
+
+The valuation tells you the investors are underwriting more than the core use case. A company serving one profession has a natural ceiling, so the thesis depends on Quill carrying its trust and workflow position into adjacent legal tasks. I find that thesis persuasive, and I'd call expansion the thing to watch, because that is where a valuation like this gets earned.
+
+Orrin Robotics signed a deal to put 5,000 warehouse robots into Palisade Foods distribution centers. Warehouse automation has been promised for a decade, and deals like this are where promises either become daily operations or stay expensive pilots. Five thousand units is a full deployment, and it tells you a large food distributor has looked at its own numbers and decided the economics work.
+
+What stands out to me is the customer as much as the vendor. Food distribution runs on thin margins and tight timing, so a distributor committing to robots at this scale is making a long-term operational bet. The part to watch is integration. Robots are only as useful as the warehouse management software they connect to, and that handoff is where rollouts tend to slow down. If Orrin and Palisade get that right, this becomes a reference deal for the sector.
+
+Now for the rest of the issue. Below you will find our weekly look at secondary sales in private fintech, where early employees are finding buyers for shares they have held through several years of uneven markets. We also have a short interview with a partner at a mid-sized growth fund about why she passed on three AI rounds this quarter, and her reasoning is worth reading even if you disagree with it.
+
+After that comes our running list of companies quietly hiring for finance and corporate development roles. Job postings often tell you more than an earnings call, because they show what a company plans to spend money on before it says so out loud. We also have a rundown of this week's convertible note filings, sorted by sector, and a reader question about whether preferred share terms still matter in a down round. Our answer is yes, and the reasons are more interesting than the short version.
+
+Finally, a note on the week ahead. The sector calendar is light until Thursday, when two fund closings are expected and a handful of late-stage rounds are likely to be disclosed. Keep an eye on the filings, read past the headline valuations, and ask what each company has to do to justify its price.
+
+That's the plan for today. Read the three lead stories, keep your skepticism sharp, and we'll see you tomorrow.
