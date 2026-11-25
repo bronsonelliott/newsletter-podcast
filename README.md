@@ -197,26 +197,27 @@ Kokoro's default here is `am_echo`. To use another, put its name in `voice`, als
 
 Kokoro is only my pick. Nothing in the main program depends on it. Each added voice is a folder in `voices/` holding one program, `speak.py`, and `engine` is the folder's name. `voices/kokoro/` is the example.
 
-You don't have to write that program yourself. Open this project's folder in Claude Code or another coding agent and paste this, with your choice filled in:
+You don't have to write that program yourself. Open this project's folder in Claude Code or another coding agent and paste this, with the parts in brackets filled in:
 
 ```
 Add a voice to this project that uses [text-to-speech tool]. Follow "The rules for a voice" in README.md and
-use voices/kokoro/speak.py as the example. Put everything in voices/[short-name]/ and change nothing outside it.
-Before you install anything, tell me what you'll download, how big it is, what it costs, whether my script leaves
-my computer, and whether its license allows how I plan to use it. Then test it with sample/script.txt.
+use voices/kokoro/speak.py as the example. Put everything in voices/[short-name]/. Outside it, change only engine in
+config.toml. I plan to use the recordings for [only me / publishing them]. Before you install anything, tell me what
+you'll download, how big it is, what it costs, whether my script leaves my computer, and whether the license allows
+that use. Then test it with sample/script.txt, and with that text twice over. Finish with `uv run podcast.py check`.
 ```
 
-Then set `engine` to that folder's name, and run `uv run podcast.py check`.
+The check should say `OK   voice:` and the folder's name.
 
 **The rules for a voice**
 
 1. **Name.** The folder's name has only small letters, numbers, `-` and `_`.
-2. **Record.** The main program runs `speak.py SCRIPT OUTPUT VOICE SPEED`. Read the text file at `SCRIPT` and write a WAV file at `OUTPUT`. `VOICE` and `SPEED` come from `config.toml`. If `VOICE` is blank, use a default. A `SPEED` of 1.0 is normal.
+2. **Record.** The main program runs `speak.py SCRIPT OUTPUT VOICE SPEED`. Read the text file at `SCRIPT` and write a WAV file of any kind at `OUTPUT`. The main program converts it to MP3. `VOICE` and `SPEED` come from `config.toml`. If `VOICE` is blank, use a default. A `SPEED` of 1.0 is normal.
 3. **Check.** `speak.py --check` exits with 0 if everything is installed. If not, it prints what's wrong and exits with anything else. It downloads nothing and costs nothing.
-4. **Fail clearly.** If a recording fails, print why and exit with anything but 0.
+4. **Fail clearly.** If a recording fails, print why and exit with anything but 0. Check that the sound file was made, because some tools report success when they fail.
 5. **Read the whole script.** It can be 5,000 words or more. If the tool has a limit, split the text and join the sound. A recording is stopped after an hour.
 6. **Own packages.** If the folder has a `.venv`, its Python runs `speak.py`. If not, the main program's Python does.
-7. **One file.** `speak.py` can't import other files beside it. It can run other programs.
+7. **One file.** `speak.py` can't import other files beside it. It can run other programs, but it starts in a temporary folder, and a scheduled run looks for programs in fewer places than Terminal does. So look in the usual install folders too.
 8. **Own password.** `speak.py` is never handed the passwords in the main `.env`. If the tool needs a key, keep it in `voices/short-name/.env`, run `chmod 600` on it, and have `speak.py` read it from there. Git ignores that file.
 
 A voice you add is a program running under your account, so look at what your agent wrote before you use it. If the tool runs online, your script goes to that company.
@@ -388,7 +389,7 @@ What's left is that a hostile newsletter could still try to change the words you
 | Anthropic API | Only with a stand-in. Not yet with a real key |
 | Feed | Played in Apple Podcasts on one iPhone, over home Wi-Fi, and after downloading, with the phone offline. Skipping ahead and the file format were checked with command-line tools. Not yet in another app |
 | Daily schedule | Started on time on one awake Mac. One run failed on purpose and showed a notification. One made the full demo episode with Claude Code and the Mac voice. Not yet with a real mailbox, from sleep, or over several days |
-| Adding another voice | The way in is tested with Kokoro and a made-up voice. Not with Qwen, Microsoft or any other tool |
+| Adding another voice | Kokoro and espeak-ng. A fresh Claude added espeak-ng from this repo and an earlier version of the prompt in [Use any other voice](#use-any-other-voice), and it recorded the whole sample script. Not Qwen, Microsoft or any other tool |
 | Linux | No |
 
 To run the automatic tests, which end with `OK` and cost nothing:
